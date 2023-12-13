@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {View, Text, TextInput, StyleSheet, Button} from 'react-native';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 
 const LoginScreen = () => {
   const [Email, setEmail] = useState('');
@@ -36,6 +37,10 @@ const LoginScreen = () => {
         // Handle error, show a message, etc.
     }
 };
+const navigation = useNavigation();
+const handleRegisterPress = () => {
+  navigation.navigate('Register');
+};
 
   return (
     <View marginBottom={10}>
@@ -49,7 +54,7 @@ const LoginScreen = () => {
       />
 
       <TextInput
-        placeholder="Enter Password"
+        placeholder="Enter Password 8 letters long"
         style={styles.TextInput}
         value={Password}
         secureTextEntry={passwordVisible}
@@ -75,6 +80,9 @@ const LoginScreen = () => {
       </View>
       <View style={{margin: 10}}>
         <Button title="Login" onPress={handleLogin} />
+      </View>
+      <View style={{margin: 10}}>
+        <Button title="Register" onPress={handleRegisterPress} />
       </View>
       <View>
         {display ? (
