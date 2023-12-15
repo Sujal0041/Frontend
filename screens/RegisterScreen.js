@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, Button } from 'react-native';
-import axios from 'axios';
+import React, {useState} from 'react';
+import {View, Text, TextInput, StyleSheet, Button} from 'react-native';
+import api from '../api/api';
 
 const RegisterScreen = () => {
   const [RegEmail, setRegEmail] = useState('');
@@ -10,25 +10,25 @@ const RegisterScreen = () => {
   const handleRegister = async () => {
     console.log(`Email: ${RegEmail}, Password: ${RegPassword}`);
     try {
-      const response = await axios.post("http://192.168.1.101:8000/api/register/", {
+      const response = await api.post('api/register/', {
         email: RegEmail,
         password: RegPassword,
       });
 
-      console.log("Registration successful:", response.data);
+      console.log('Registration successful:', response.data);
     } catch (error) {
-      console.log("Registration failed:", error);
-      console.error("Registration failed:", error.message);
+      console.log('Registration failed:', error);
+      console.error('Registration failed:', error.message);
     }
   };
 
   return (
     <View>
-      <Text style={{ fontSize: 30 }}>Register Here</Text>
+      <Text style={{fontSize: 30}}>Register Here</Text>
       <TextInput
         style={styles.TextInput}
         placeholder="Enter your email"
-        onChangeText={(text) => setRegEmail(text)}
+        onChangeText={text => setRegEmail(text)}
         value={RegEmail}
         marginBottom={10}
       />
@@ -36,7 +36,7 @@ const RegisterScreen = () => {
       <TextInput
         style={styles.TextInput}
         placeholder="Enter your Phone Number"
-        onChangeText={(text) => setNumber(text)}
+        onChangeText={text => setNumber(text)}
         value={number}
         keyboardType="numeric"
         marginBottom={10}
@@ -45,7 +45,7 @@ const RegisterScreen = () => {
       <TextInput
         style={styles.TextInput}
         placeholder="Enter your Password"
-        onChangeText={(text) => setRegPassword(text)}
+        onChangeText={text => setRegPassword(text)}
         value={RegPassword}
         marginBottom={10}
       />

@@ -1,7 +1,8 @@
 import React, {useState} from 'react';
 import {View, Text, TextInput, StyleSheet, Button} from 'react-native';
-import axios from 'axios';
-import { useNavigation } from '@react-navigation/native';
+import api from '../api/api';
+import {useNavigation} from '@react-navigation/native';
+import {storeToken, retrieveToken} from '../api/api';
 
 const LoginScreen = () => {
   const [Email, setEmail] = useState('');
@@ -15,32 +16,30 @@ const LoginScreen = () => {
     setDisplay(false);
   };
 
-  const navigateToRegister = () => {
-    navigation.navigate('Register');
-  };
-
   const handleLogin = async () => {
     try {
-        const response = await axios.post('http://100.64.245.171:8000/api/login/', {
-            email: Email,
-            password: Password,
-        });
-        console.log(`Email: ${Email}, Password: ${Password}`);
+      const response = await api.post('api/login/', {
+        email: Email,
+        password: Password,
+      });
 
-        const token = response.data.token;
-        // You can store the token in AsyncStorage or Redux for future requests
+      const token = response.data.token;
+      await storeToken(token);
 
-        // Clear the form fields
-        clear();
+      console.log('Login successful:', response.data);
+      setEmail('');
+      setPassword('');
+      navigation.navigate('Home');
     } catch (error) {
-        console.error('Login failed:', error);
-        // Handle error, show a message, etc.
+      console.error('Login failed:', error);
     }
-};
-const navigation = useNavigation();
-const handleRegisterPress = () => {
-  navigation.navigate('Register');
-};
+  };
+
+  const navigation = useNavigation();
+
+  const handleRegisterPress = () => {
+    navigation.navigate('Register');
+  };
 
   return (
     <View marginBottom={10}>
@@ -71,15 +70,14 @@ const handleRegisterPress = () => {
           }
         />
       </View>
-
+      <View style={{margin: 10}}>
+        <Button title="Login" onPress={handleLogin} />
+      </View>
       <View style={{margin: 10}}>
         <Button title="Print Value" onPress={() => setDisplay(true)} />
       </View>
       <View style={{margin: 10}}>
         <Button title="Clear" onPress={clear} />
-      </View>
-      <View style={{margin: 10}}>
-        <Button title="Login" onPress={handleLogin} />
       </View>
       <View style={{margin: 10}}>
         <Button title="Register" onPress={handleRegisterPress} />
