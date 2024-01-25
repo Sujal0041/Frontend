@@ -8,7 +8,9 @@ const RegisterScreen = () => {
   const [RegPassword, setRegPassword] = useState('');
 
   const handleRegister = async () => {
-    console.log(`Email: ${RegEmail}, Password: ${RegPassword}`);
+    console.log(
+      `Email: ${RegEmail}, Password: ${RegPassword}, Phone Number: ${number}`,
+    );
     try {
       const response = await api.post('api/register/', {
         email: RegEmail,
