@@ -17,6 +17,7 @@ const HomeScreen = () => {
             fontWeight: 'bold',
             textAlign: 'center',
             color: 'white',
+            marginTop: 100,
           }}>
           Let's Get Started!
         </Text>
