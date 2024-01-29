@@ -17,8 +17,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 const LoginScreen = () => {
   const [Email, setEmail] = useState('');
   const [Password, setPassword] = useState('');
-  const [display, setDisplay] = useState(false);
-  const [passwordVisible, setPasswordVisible] = useState(false);
+  const [isPasswordVisible, setIsPasswordVisible] = useState(false);
 
   const clear = () => {
     setEmail('');
@@ -53,6 +52,10 @@ const LoginScreen = () => {
   };
   //Backend End
 
+  const togglePasswordVisibility = () => {
+    setIsPasswordVisible(!isPasswordVisible);
+  };
+
   return (
     <View style={{flex: 1, backgroundColor: '#7B70F9'}}>
       <SafeAreaView style={{flex: 1}}>
@@ -85,7 +88,7 @@ const LoginScreen = () => {
           flex: 1,
           backgroundColor: 'white',
           padding: 8,
-          paddingTop: 8,
+          paddingTop: 25,
         }}>
         <Text style={{color: '#333', marginLeft: 16}}>Email Address</Text>
         <TextInput
@@ -101,6 +104,7 @@ const LoginScreen = () => {
 
         <Text style={{color: '#333', marginLeft: 15}}>Password</Text>
         <TextInput
+          secureTextEntry={!isPasswordVisible}
           style={{
             margin: 10,
             padding: 13,
@@ -110,6 +114,35 @@ const LoginScreen = () => {
             marginBottom: 10,
           }}
         />
+        <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginRight: 15}}>
+        <TouchableOpacity
+          onPress={togglePasswordVisibility}
+          style={styles.buttonContainer}>
+          <Text style={styles.buttonText}>
+            {isPasswordVisible ? 'Hide Password' : 'Show Password'}
+          </Text>
+        </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Home')}
+          style={{
+            paddingVertical: 12,
+            backgroundColor: '#FFD700',
+            marginHorizontal: 14,
+            borderRadius: 12,
+            marginTop: 15,
+          }}>
+          <Text
+            style={{
+              fontSize: 20,
+              fontWeight: 'bold',
+              textAlign: 'center',
+              color: '#707070',
+            }}>
+            Login
+          </Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
