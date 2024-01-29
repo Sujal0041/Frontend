@@ -4,7 +4,6 @@ import {
   Text,
   TextInput,
   StyleSheet,
-  Button,
   Image,
   TouchableOpacity,
 } from 'react-native';
@@ -18,12 +17,6 @@ const LoginScreen = () => {
   const [Email, setEmail] = useState('');
   const [Password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
-
-  const clear = () => {
-    setEmail('');
-    setPassword('');
-    setDisplay(false);
-  };
 
   //backend
   const handleLogin = async () => {
