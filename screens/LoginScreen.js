@@ -136,6 +136,7 @@ const LoginScreen = () => {
             Login
           </Text>
         </TouchableOpacity>
+        <AntDesign name="arrowright" size={24} color="black" />
       </View>
     </View>
   );
