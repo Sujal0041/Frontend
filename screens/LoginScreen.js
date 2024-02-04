@@ -107,14 +107,22 @@ const LoginScreen = () => {
             marginBottom: 10,
           }}
         />
-        <View style={{flexDirection: 'row', justifyContent: 'flex-end', marginRight: 15}}>
-        <TouchableOpacity
-          onPress={togglePasswordVisibility}
-          style={styles.buttonContainer}>
-          <Text style={styles.buttonText}>
-            {isPasswordVisible ? 'Hide Password' : 'Show Password'}
-          </Text>
+        <TouchableOpacity>
+          <AntDesign name="eye" size={24} color="black" />
         </TouchableOpacity>
+        <View
+          style={{
+            flexDirection: 'row',
+            justifyContent: 'flex-end',
+            marginRight: 15,
+          }}>
+          <TouchableOpacity
+            onPress={togglePasswordVisibility}
+            style={styles.buttonContainer}>
+            <Text style={styles.buttonText}>
+              {isPasswordVisible ? 'Hide Password' : 'Show Password'}
+            </Text>
+          </TouchableOpacity>
         </View>
 
         <TouchableOpacity
@@ -136,7 +144,6 @@ const LoginScreen = () => {
             Login
           </Text>
         </TouchableOpacity>
-        <AntDesign name="arrowright" size={24} color="black" />
       </View>
     </View>
   );

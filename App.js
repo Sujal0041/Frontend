@@ -8,6 +8,7 @@ import Welcomepage from './screens/Welcomepage';
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 import HomeScreen from './screens/HomeScreen';
+import Account from './screens/Account';
 
 const Stack = createStackNavigator();
 const App = () => {
