@@ -32,7 +32,7 @@ const LoginScreen = () => {
       console.log('Login successful:', response.data);
       setEmail('');
       setPassword('');
-      navigation.navigate('Home');
+      navigation.navigate('MainTab');
     } catch (error) {
       console.error('Login failed:', error);
     }
@@ -126,7 +126,7 @@ const LoginScreen = () => {
         </View>
 
         <TouchableOpacity
-          onPress={() => navigation.navigate('Home')}
+          onPress={() => navigation.navigate('MainTab')}
           style={{
             paddingVertical: 12,
             backgroundColor: '#FFD700',

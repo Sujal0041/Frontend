@@ -33,25 +33,25 @@ const screenOptions = {
     backgroundColor: 'white',
   },
 };
-// const App = () => {
-//   return (
-//     <NavigationContainer>
-//       <Stack.Navigator
-//         initialRouteName="Welcome"
-//         screenOptions={{headerShown: false}}>
-//         Stack.Screen name="Login" component={LoginScreen} />
-//         <Stack.Screen name="Register" component={RegisterScreen} />
-//         <Stack.Screen name="Welcome" component={Welcomepage} />
-//         <Stack.Screen name="Home" component={HomeScreen} />
-//         <Stack.Screen name="MainTab" component={MainTabNavigator} />
-//       </Stack.Navigator>
-//     </NavigationContainer>
-//   );
-// };
+const App = () => {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName="Welcome"
+        screenOptions={{headerShown: false}}>
+        <Stack.Screen name="Login" component={LoginScreen} />
+        <Stack.Screen name="Register" component={RegisterScreen} />
+        <Stack.Screen name="Welcome" component={Welcomepage} />
+        {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
+        <Stack.Screen name="MainTab" component={MainTabNavigator} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+};
 
 const MainTabNavigator = () => {
   return (
-    <NavigationContainer>
+    // <NavigationContainer>
       <Tab.Navigator screenOptions={screenOptions}>
         <Tab.Screen
           name="Home"
@@ -162,8 +162,8 @@ const MainTabNavigator = () => {
           }}
         />
       </Tab.Navigator>
-    </NavigationContainer>
+    // </NavigationContainer>
   );
 };
 
-export default MainTabNavigator;
+export default App;
