@@ -23,6 +23,7 @@ const Stack = createStackNavigator();
 const screenOptions = {
   tabBarShowLabel: false,
   headerShown: false,
+  tabBarHideOnKeyboard: true,
   tabBarStyle: {
     position: 'absolute',
     bottom: 0,
@@ -52,116 +53,112 @@ const App = () => {
 const MainTabNavigator = () => {
   return (
     // <NavigationContainer>
-      <Tab.Navigator screenOptions={screenOptions}>
-        <Tab.Screen
-          name="Home"
-          component={HomeScreen}
-          options={{
-            tabBarIcon: ({focused}) => {
-              return (
-                <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                  <AntDesign
-                    name="home"
-                    size={24}
-                    color={focused ? 'green' : '#111'}
-                  />
-                  <Text
-                    style={{fontSize: 12, color: focused ? 'green' : '#111'}}>
-                    Home
-                  </Text>
-                </View>
-              );
-            },
-          }}
-        />
-        <Tab.Screen
-          name="Graph"
-          component={Graph}
-          options={{
-            tabBarIcon: ({focused}) => {
-              return (
-                <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                  <AntDesign
-                    name="linechart"
-                    size={24}
-                    color={focused ? 'green' : '#111'}
-                  />
-                  <Text
-                    style={{fontSize: 12, color: focused ? 'green' : '#111'}}>
-                    Graph
-                  </Text>
-                </View>
-              );
-            },
-          }}
-        />
+    <Tab.Navigator screenOptions={screenOptions}>
+      <Tab.Screen
+        name="Home"
+        component={HomeScreen}
+        options={{
+          tabBarIcon: ({focused}) => {
+            return (
+              <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                <AntDesign
+                  name="home"
+                  size={24}
+                  color={focused ? 'green' : '#111'}
+                />
+                <Text style={{fontSize: 12, color: focused ? 'green' : '#111'}}>
+                  Home
+                </Text>
+              </View>
+            );
+          },
+        }}
+      />
+      <Tab.Screen
+        name="Graph"
+        component={Graph}
+        options={{
+          tabBarIcon: ({focused}) => {
+            return (
+              <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                <AntDesign
+                  name="linechart"
+                  size={24}
+                  color={focused ? 'green' : '#111'}
+                />
+                <Text style={{fontSize: 12, color: focused ? 'green' : '#111'}}>
+                  Graph
+                </Text>
+              </View>
+            );
+          },
+        }}
+      />
 
-        <Tab.Screen
-          name="ManageExpense"
-          component={ManageExpense}
-          options={{
-            tabBarIcon: ({focused}) => {
-              return (
-                <View
-                  style={{
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    backgroundColor: '#16247d',
-                    width: Platform.OS == 'ios' ? 50 : 60,
-                    height: Platform.OS == 'ios' ? 50 : 60,
-                    top: Platform.OS == 'ios' ? -10 : -20,
-                    borderRadius: Platform.OS == 'ios' ? 25 : 30,
-                  }}>
-                  <AntDesign name="plus" size={24} color="#fff" />
-                </View>
-              );
-            },
-          }}
-        />
+      <Tab.Screen
+        name="ManageExpense"
+        component={ManageExpense}
+        options={{
+          tabBarIcon: ({focused}) => {
+            return (
+              <View
+                style={{
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: '#16247d',
+                  width: Platform.OS == 'ios' ? 50 : 60,
+                  height: Platform.OS == 'ios' ? 50 : 60,
+                  top: Platform.OS == 'ios' ? -10 : -20,
+                  borderRadius: Platform.OS == 'ios' ? 25 : 30,
+                }}>
+                <AntDesign name="plus" size={24} color="#fff" />
+              </View>
+            );
+          },
+        }}
+      />
 
-        <Tab.Screen
-          name="Goals"
-          component={Goals}
-          options={{
-            tabBarIcon: ({focused}) => {
-              return (
-                <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                  <AntDesign
-                    name="checksquareo"
-                    size={24}
-                    color={focused ? 'green' : '#111'}
-                  />
-                  <Text
-                    style={{fontSize: 12, color: focused ? 'green' : '#111'}}>
-                    Goals
-                  </Text>
-                </View>
-              );
-            },
-          }}
-        />
-        <Tab.Screen
-          name="Account"
-          component={Account}
-          options={{
-            tabBarIcon: ({focused}) => {
-              return (
-                <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                  <AntDesign
-                    name="user"
-                    size={24}
-                    color={focused ? 'green' : '#111'}
-                  />
-                  <Text
-                    style={{fontSize: 12, color: focused ? 'green' : '#111'}}>
-                    Profile
-                  </Text>
-                </View>
-              );
-            },
-          }}
-        />
-      </Tab.Navigator>
+      <Tab.Screen
+        name="Goals"
+        component={Goals}
+        options={{
+          tabBarIcon: ({focused}) => {
+            return (
+              <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                <AntDesign
+                  name="checksquareo"
+                  size={24}
+                  color={focused ? 'green' : '#111'}
+                />
+                <Text style={{fontSize: 12, color: focused ? 'green' : '#111'}}>
+                  Goals
+                </Text>
+              </View>
+            );
+          },
+        }}
+      />
+      <Tab.Screen
+        name="Account"
+        component={Account}
+        options={{
+          tabBarIcon: ({focused}) => {
+            return (
+              <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                <AntDesign
+                  name="user"
+                  size={24}
+                  color={focused ? 'green' : '#111'}
+                />
+                <Text style={{fontSize: 12, color: focused ? 'green' : '#111'}}>
+                  Profile
+                </Text>
+              </View>
+            );
+          },
+        }}
+      />
+    </Tab.Navigator>
     // </NavigationContainer>
   );
 };
