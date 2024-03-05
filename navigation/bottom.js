@@ -64,7 +64,7 @@ const MainTabNavigator = () => {
                   color={focused ? 'green' : '#111'}
                 />
                 <Text style={{fontSize: 12, color: focused ? 'green' : '#111'}}>
-                  Graph
+                  Category
                 </Text>
               </View>
             );
