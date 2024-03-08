@@ -1,6 +1,13 @@
 // HomeScreen.js
 import React from 'react';
-import {View, Text, SafeAreaView, StyleSheet, Dimensions} from 'react-native';
+import {
+  View,
+  Text,
+  SafeAreaView,
+  StyleSheet,
+  Dimensions,
+  TouchableOpacity,
+} from 'react-native';
 import {LineChart, ProgressChart} from 'react-native-chart-kit';
 
 const HomeScreen = () => {

@@ -1,83 +1,49 @@
-import React, { useState } from 'react';
-import { View, Text, TextInput, Button, StyleSheet, DatePickerAndroid, Platform } from 'react-native';
+import React from 'react';
+import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
+import {useNavigation} from '@react-navigation/native';
 
-const Goals = ({ onAddGoal }) => {
-  const [enteredGoal, setEnteredGoal] = useState('');
-  const [selectedDate, setSelectedDate] = useState(new Date());
+const Goals = () => {
+  const navigation = useNavigation();
 
-  const goalInputHandler = (text) => {
-    setEnteredGoal(text);
-  };
-
-  const addGoalHandler = async () => {
-    if (Platform.OS === 'android') {
-      try {
-        const { action, year, month, day } = await DatePickerAndroid.open({
-          date: selectedDate,
-        });
-        if (action !== DatePickerAndroid.dismissedAction) {
-          const newDate = new Date(year, month, day);
-          setSelectedDate(newDate);
-        }
-      } catch ({ message }) {
-        console.error('Cannot open date picker', message);
-      }
-    }
-    onAddGoal(enteredGoal, selectedDate);
-    setEnteredGoal('');
+  const navigateToAnotherPage = () => {
+    navigation.navigate('AddGoals');
   };
 
   return (
-    <View style={styles.inputContainer}>
-      <Text style={styles.label}>Goal Name</Text>
-      <TextInput
-        style={styles.input}
-        value={enteredGoal}
-        onChangeText={goalInputHandler}
-      />
-      <Text style={styles.label}>Target Amount</Text>
-      <TextInput
-        style={styles.input}
-        keyboardType="numeric"
-      />
-      <Text style={styles.label}>Remind Me Every</Text>
-      <View style={styles.row}>
-        <TextInput style={[styles.input, styles.halfInput]} />
-        <Text style={styles.halfLabel}>Weeks</Text>
-      </View>
-      <Text style={styles.label}>Set Goal</Text>
-      <Button title="Set Goal" onPress={addGoalHandler} />
-      <Button title="Select Reminder Date" onPress={addGoalHandler} />
+    <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.plusButton}
+        onPress={navigateToAnotherPage}>
+        <Text style={styles.plusButtonText}>+</Text>
+      </TouchableOpacity>
+      <Text style={styles.text}>Goals</Text>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  inputContainer: {
-    margin: 20,
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  label: {
-    fontSize: 16,
-    marginVertical: 10,
+  text: {
+    fontSize: 30,
   },
-  input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
+  plusButton: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    backgroundColor: 'lightgrey',
     padding: 10,
-    marginVertical: 5,
-    width: '100%',
+    borderRadius: 50,
+    width: 60,
+    alignItems: 'center',
   },
-  halfInput: {
-    width: '50%',
-  },
-  halfLabel: {
-    width: '50%',
-    fontSize: 16,
-    marginVertical: 10,
-    textAlign: 'right',
-  },
-  row: {
-    flexDirection: 'row',
+  plusButtonText: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
   },
 });
 

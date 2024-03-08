@@ -2,16 +2,21 @@ import React from 'react';
 import {Text, Platform, View} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import {useNavigation} from '@react-navigation/native';
+
+import {createStackNavigator} from '@react-navigation/stack';
 
 import {
   HomeScreen,
   Account,
-  Graph,
+  Category,
   Goals,
   ManageExpense,
+  AddGoals,
 } from '../screens/Index';
 
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
 const screenOptions = {
   tabBarShowLabel: false,
@@ -28,6 +33,16 @@ const screenOptions = {
   },
 };
 
+const GoalsNav = () => {
+  const navigation = useNavigation();
+  return (
+    <Stack.Navigator
+    screenOptions={{headerShown: false}}>
+      <Stack.Screen name="Goals" component={Goals} />
+      <Stack.Screen name="AddGoals" component={AddGoals} />
+    </Stack.Navigator>
+  );
+};
 const MainTabNavigator = () => {
   return (
     <Tab.Navigator screenOptions={screenOptions}>
@@ -52,8 +67,8 @@ const MainTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Graph"
-        component={Graph}
+        name="Category"
+        component={Category}
         options={{
           tabBarIcon: ({focused}) => {
             return (
@@ -97,7 +112,7 @@ const MainTabNavigator = () => {
 
       <Tab.Screen
         name="Goals"
-        component={Goals}
+        component={GoalsNav}
         options={{
           tabBarIcon: ({focused}) => {
             return (

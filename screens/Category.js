@@ -2,10 +2,10 @@
 import React from 'react';
 import {View, Text, StyleSheet} from 'react-native';
 
-const Graph = () => {
+const Category = () => {
   return (
     <View style={styles.container}>
-      <Text style={styles.text}>Graph</Text>
+      <Text style={styles.text}>Category</Text>
     </View>
   );
 };
@@ -21,4 +21,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Graph;
+export default Category;
