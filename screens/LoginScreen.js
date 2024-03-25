@@ -6,43 +6,62 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
-import api from '../api/api';
+// import api from '../api/api';
 import {useNavigation} from '@react-navigation/native';
 import {storeToken, retrieveToken} from '../api/api';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import axios from 'axios';
+import {BASE_URL} from '../api/api';
 
 const LoginScreen = () => {
   const [Email, setEmail] = useState('');
   const [Password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const navigation = useNavigation();
 
   //backend
   const handleLogin = async () => {
     try {
-      const response = await api.post('api/login/', {
+      const userData = {
         email: Email,
         password: Password,
-      });
+      };
 
-      const token = response.data.token;
-      await storeToken(token);
+      const response = await axios.post(`${BASE_URL}api/login/`, userData);
 
-      console.log('Login successful:', response.data);
-      setEmail('');
-      setPassword('');
-      navigation.navigate('MainTab');
+      console.log(`Email: ${Email}, Password: ${Password}`);
+      // const response = await api.post('api/login/', {
+      //   email: Email,
+      //   password: Password,
+      // });
+
+      if (response.status === 200) {
+        console.log('Login successful:', response.data);
+        const token = response.data.token;
+        await storeToken(token);
+        setEmail('');
+        setPassword('');
+        navigation.navigate('MainTab');
+      } else {
+        // Handle unexpected server responses
+        // console.error('Unexpected server response:', response);
+        // Display an error message to the user
+        Alert.alert(
+          'Login Failed',
+          'An unexpected error occurred. Please try again later.',
+        );
+      }
     } catch (error) {
+      // Handle network errors or other exceptions
       console.error('Login failed:', error);
+      // Display an error message to the user
+      Alert.alert('Login Failed', 'Please Enter Correct Email and Password');
     }
   };
 
-  const navigation = useNavigation();
-
-  const handleRegisterPress = () => {
-    navigation.navigate('Register');
-  };
   //Backend End
 
   const togglePasswordVisibility = () => {
@@ -85,6 +104,7 @@ const LoginScreen = () => {
         }}>
         <Text style={{color: '#333', marginLeft: 16}}>Email Address</Text>
         <TextInput
+          onChangeText={text => setEmail(text)}
           style={{
             margin: 10,
             padding: 13,
@@ -97,6 +117,7 @@ const LoginScreen = () => {
 
         <Text style={{color: '#333', marginLeft: 15}}>Password</Text>
         <TextInput
+          onChangeText={text => setPassword(text)}
           secureTextEntry={!isPasswordVisible}
           style={{
             margin: 10,
@@ -126,7 +147,7 @@ const LoginScreen = () => {
         </View>
 
         <TouchableOpacity
-          onPress={() => navigation.navigate('MainTab')}
+          onPress={handleLogin}
           style={{
             paddingVertical: 12,
             backgroundColor: '#FFD700',

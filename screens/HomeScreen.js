@@ -81,12 +81,12 @@ const HomeScreen = () => {
           <Text style={styles.text2}>Cash Flow</Text>
 
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text>Income</Text>
+            <Text>+ Income</Text>
             <Text>Rs XXXX NPR</Text>
           </View>
 
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
-            <Text>Expense</Text>
+            <Text>- Expense</Text>
             <Text>Rs XXXX NPR</Text>
           </View>
 

@@ -11,6 +11,8 @@ import {
 import api from '../api/api';
 import {RotateInDownLeft} from 'react-native-reanimated';
 import {useNavigation} from '@react-navigation/native';
+import axios from 'axios';
+import {BASE_URL} from '../api/api';
 
 const RegisterScreen = () => {
   const [RegEmail, setRegEmail] = useState('');
@@ -20,19 +22,22 @@ const RegisterScreen = () => {
 
   //Backend
   const handleRegister = async () => {
-    console.log(
-      `Email: ${RegEmail}, Password: ${RegPassword}, Phone Number: ${number}`,
-    );
     try {
-      const response = await api.post('api/register/', {
+      console.log(
+        `Email: ${RegEmail}, Number: ${number},Password: ${RegPassword}`,
+      );
+      const userData = {
         email: RegEmail,
         password: RegPassword,
-      });
+      };
+
+      const response = await axios.post(`${BASE_URL}api/register/`, userData);
 
       console.log('Registration successful:', response.data);
+      // Handle successful registration response here
     } catch (error) {
-      console.log('Registration failed:', error);
-      console.error('Registration failed:', error.message);
+      console.error('Registration failed:', error);
+      // Handle registration failure here
     }
   };
   //backend end
@@ -85,6 +90,7 @@ const RegisterScreen = () => {
         }}>
         <Text style={{color: '#333', marginLeft: 16}}>Email Address</Text>
         <TextInput
+          onChangeText={text => setRegEmail(text)}
           keyboardType="email-address"
           autoCapitalize="none" // Prevents automatic capitalization
           autoCompleteType="email" // Helps autofill recognize it as an email field
@@ -99,6 +105,7 @@ const RegisterScreen = () => {
         />
         <Text style={{color: '#333', marginLeft: 16}}>Phone Number</Text>
         <TextInput
+          onChangeText={text => setNumber(text)}
           keyboardType="numeric"
           maxLength={10}
           style={{
@@ -112,6 +119,7 @@ const RegisterScreen = () => {
         />
         <Text style={{color: '#333', marginLeft: 15}}>Password</Text>
         <TextInput
+          onChangeText={text => setRegPassword(text)}
           secureTextEntry={!isPasswordVisible}
           style={{
             margin: 10,
@@ -138,7 +146,7 @@ const RegisterScreen = () => {
         </View>
 
         <TouchableOpacity
-          onPress={() => navigation.navigate('Login')}
+          onPress={handleRegister}
           style={{
             paddingVertical: 12,
             backgroundColor: '#FFD700',

@@ -27,7 +27,8 @@
     "react-native-screens": "^3.29.0",
     "react-native-svg": "^15.0.0",
     "react-native-vector-icons": "^10.0.3",
-    "react-navigation-stack": "^2.10.4"
+    "react-navigation-stack": "^2.10.4",
+    "victory-pie": "^37.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
