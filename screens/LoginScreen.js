@@ -128,9 +128,9 @@ const LoginScreen = () => {
             marginBottom: 10,
           }}
         />
-        <TouchableOpacity>
+        {/* <TouchableOpacity>
           <AntDesign name="eye" size={24} color="black" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <View
           style={{
             flexDirection: 'row',

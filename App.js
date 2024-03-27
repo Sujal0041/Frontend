@@ -6,6 +6,7 @@ import RegisterScreen from './screens/RegisterScreen';
 import Welcomepage from './screens/Welcomepage';
 import MainTabNavigator from './navigation/bottom';
 
+
 const Stack = createStackNavigator();
 
 const App = () => {

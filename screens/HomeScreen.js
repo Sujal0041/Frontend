@@ -1,4 +1,4 @@
-// HomeScreen.js
+import 'react-native-gesture-handler';
 import React from 'react';
 import {
   View,
@@ -7,15 +7,31 @@ import {
   StyleSheet,
   Dimensions,
   TouchableOpacity,
+  ScrollView,
 } from 'react-native';
+import {AccountSettings, Currency, Reminder} from '../DrawerScreen/IndexPath';
+import {createDrawerNavigator} from '@react-navigation/drawer';
 import {LineChart, ProgressChart} from 'react-native-chart-kit';
+
+const Drawer = createDrawerNavigator();
+
+const MyDrawer = () => {
+  return (
+    <Drawer.Navigator>
+      <Drawer.Screen name="Home" component={HomeScreen} />
+      <Drawer.Screen name="Currency" component={Currency} />
+      <Drawer.Screen name="AccountSettings" component={AccountSettings} />
+      <Drawer.Screen name="Reminder" component={Reminder} />
+    </Drawer.Navigator>
+  );
+};
 
 const HomeScreen = () => {
   return (
-    <>
+    <SafeAreaView style={{flex: 1}}>
       <View style={styles.box2}>
         <View style={styles.inner2}>
-          <Text style={styles.text}>DashBoard</Text>
+          <Text style={styles.text}>Dashboard</Text>
           <LineChart
             data={{
               labels: [
@@ -100,7 +116,7 @@ const HomeScreen = () => {
           </View>
         </View>
       </View>
-    </>
+    </SafeAreaView>
   );
 };
 
@@ -134,4 +150,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen;
+export default MyDrawer;

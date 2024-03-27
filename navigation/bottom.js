@@ -1,9 +1,8 @@
 import React from 'react';
-import {Text, Platform, View} from 'react-native';
+import {Text, Platform, View, TouchableOpacity} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import {useNavigation} from '@react-navigation/native';
-
+import {useNavigation, DrawerActions} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
 import {
@@ -36,35 +35,49 @@ const screenOptions = {
 const GoalsNav = () => {
   const navigation = useNavigation();
   return (
-    <Stack.Navigator
-    screenOptions={{headerShown: false}}>
+    <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="Goals" component={Goals} />
       <Stack.Screen name="AddGoals" component={AddGoals} />
     </Stack.Navigator>
   );
 };
+
 const MainTabNavigator = () => {
+  const navigation = useNavigation();
+
+  const MyDrawer = () => {
+    return (
+      <Drawer.Navigator>
+        <Drawer.Screen name="Currency" component={Currency} />
+        <Drawer.Screen name="AccountSettings" component={AccountSettings} />
+        <Drawer.Screen name="Reminder" component={Reminder} />
+      </Drawer.Navigator>
+    );
+  };
+
+  const openDrawer = () => {
+    navigation.dispatch(DrawerActions.openDrawer());
+  };
+
   return (
     <Tab.Navigator screenOptions={screenOptions}>
       <Tab.Screen
         name="Home"
         component={HomeScreen}
-        options={{
-          tabBarIcon: ({focused}) => {
-            return (
-              <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                <AntDesign
-                  name="home"
-                  size={24}
-                  color={focused ? 'green' : '#111'}
-                />
-                <Text style={{fontSize: 12, color: focused ? 'green' : '#111'}}>
-                  Home
-                </Text>
-              </View>
-            );
-          },
-        }}
+        options={({route}) => ({
+          tabBarIcon: ({focused}) => (
+            <View style={{alignItems: 'center', justifyContent: 'center'}}>
+              <AntDesign
+                name="home"
+                size={24}
+                color={focused ? 'green' : '#111'}
+              />
+              <Text style={{fontSize: 12, color: focused ? 'green' : '#111'}}>
+                Home
+              </Text>
+            </View>
+          ),
+        })}
       />
       <Tab.Screen
         name="Category"
@@ -143,7 +156,7 @@ const MainTabNavigator = () => {
                   color={focused ? 'green' : '#111'}
                 />
                 <Text style={{fontSize: 12, color: focused ? 'green' : '#111'}}>
-                  Analytics
+                  Transactions
                 </Text>
               </View>
             );
