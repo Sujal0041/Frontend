@@ -28,7 +28,7 @@ const screenOptions = {
     right: 0,
     elevation: 0,
     height: 60,
-    backgroundColor: 'white',
+    backgroundColor: '#3e3e42',
   },
 };
 
@@ -45,20 +45,6 @@ const GoalsNav = () => {
 const MainTabNavigator = () => {
   const navigation = useNavigation();
 
-  // const MyDrawer = () => {
-  //   return (
-  //     <Drawer.Navigator>
-  //       <Drawer.Screen name="Currency" component={Currency} />
-  //       <Drawer.Screen name="AccountSettings" component={AccountSettings} />
-  //       <Drawer.Screen name="Reminder" component={Reminder} />
-  //     </Drawer.Navigator>
-  //   );
-  // };
-
-  // const openDrawer = () => {
-  //   navigation.dispatch(DrawerActions.openDrawer());
-  // };
-
   return (
     <Tab.Navigator screenOptions={screenOptions}>
       <Tab.Screen
@@ -70,9 +56,10 @@ const MainTabNavigator = () => {
               <AntDesign
                 name="home"
                 size={24}
-                color={focused ? 'green' : '#111'}
+                color={focused ? '#007acc' : 'white'}
               />
-              <Text style={{fontSize: 12, color: focused ? 'green' : '#111'}}>
+              <Text
+                style={{fontSize: 12, color: focused ? '#007acc' : 'white'}}>
                 Home
               </Text>
             </View>
@@ -89,9 +76,10 @@ const MainTabNavigator = () => {
                 <AntDesign
                   name="linechart"
                   size={24}
-                  color={focused ? 'green' : '#111'}
+                  color={focused ? '#007acc' : 'white'}
                 />
-                <Text style={{fontSize: 12, color: focused ? 'green' : '#111'}}>
+                <Text
+                  style={{fontSize: 12, color: focused ? '#007acc' : 'white'}}>
                   Category
                 </Text>
               </View>
@@ -133,9 +121,10 @@ const MainTabNavigator = () => {
                 <AntDesign
                   name="checksquareo"
                   size={24}
-                  color={focused ? 'green' : '#111'}
+                  color={focused ? '#007acc' : 'white'}
                 />
-                <Text style={{fontSize: 12, color: focused ? 'green' : '#111'}}>
+                <Text
+                  style={{fontSize: 12, color: focused ? '#007acc' : 'white'}}>
                   Goals
                 </Text>
               </View>
@@ -153,9 +142,10 @@ const MainTabNavigator = () => {
                 <AntDesign
                   name="user"
                   size={24}
-                  color={focused ? 'green' : '#111'}
+                  color={focused ? '#007acc' : 'white'}
                 />
-                <Text style={{fontSize: 12, color: focused ? 'green' : '#111'}}>
+                <Text
+                  style={{fontSize: 12, color: focused ? '#007acc' : 'white'}}>
                   Transactions
                 </Text>
               </View>

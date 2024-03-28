@@ -6,12 +6,11 @@ import {
   SafeAreaView,
   StyleSheet,
   Dimensions,
-  TouchableOpacity,
   ScrollView,
 } from 'react-native';
 import {AccountSettings, Currency, Reminder} from '../DrawerScreen/IndexPath';
 import {createDrawerNavigator} from '@react-navigation/drawer';
-import {LineChart, ProgressChart} from 'react-native-chart-kit';
+import {LineChart} from 'react-native-chart-kit';
 import {
   DrawerContentScrollView,
   DrawerItemList,
