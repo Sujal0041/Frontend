@@ -45,19 +45,19 @@ const GoalsNav = () => {
 const MainTabNavigator = () => {
   const navigation = useNavigation();
 
-  const MyDrawer = () => {
-    return (
-      <Drawer.Navigator>
-        <Drawer.Screen name="Currency" component={Currency} />
-        <Drawer.Screen name="AccountSettings" component={AccountSettings} />
-        <Drawer.Screen name="Reminder" component={Reminder} />
-      </Drawer.Navigator>
-    );
-  };
+  // const MyDrawer = () => {
+  //   return (
+  //     <Drawer.Navigator>
+  //       <Drawer.Screen name="Currency" component={Currency} />
+  //       <Drawer.Screen name="AccountSettings" component={AccountSettings} />
+  //       <Drawer.Screen name="Reminder" component={Reminder} />
+  //     </Drawer.Navigator>
+  //   );
+  // };
 
-  const openDrawer = () => {
-    navigation.dispatch(DrawerActions.openDrawer());
-  };
+  // const openDrawer = () => {
+  //   navigation.dispatch(DrawerActions.openDrawer());
+  // };
 
   return (
     <Tab.Navigator screenOptions={screenOptions}>

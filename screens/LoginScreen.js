@@ -6,63 +6,46 @@ import {
   StyleSheet,
   Image,
   TouchableOpacity,
-  Alert,
+  Modal,
 } from 'react-native';
-// import api from '../api/api';
 import {useNavigation} from '@react-navigation/native';
-import {storeToken, retrieveToken} from '../api/api';
+import {storeToken} from '../api/api';
 import {SafeAreaView} from 'react-native-safe-area-context';
-import AntDesign from 'react-native-vector-icons/AntDesign';
 import axios from 'axios';
 import {BASE_URL} from '../api/api';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 const LoginScreen = () => {
-  const [Email, setEmail] = useState('');
-  const [Password, setPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
   const navigation = useNavigation();
 
-  //backend
   const handleLogin = async () => {
     try {
       const userData = {
-        email: Email,
-        password: Password,
+        email: email,
+        password: password,
       };
 
       const response = await axios.post(`${BASE_URL}api/login/`, userData);
 
-      console.log(`Email: ${Email}, Password: ${Password}`);
-      // const response = await api.post('api/login/', {
-      //   email: Email,
-      //   password: Password,
-      // });
-
       if (response.status === 200) {
-        console.log('Login successful:', response.data);
         const token = response.data.token;
         await storeToken(token);
+
         setEmail('');
         setPassword('');
+
         navigation.navigate('MainTab');
       } else {
-        // Handle unexpected server responses
-        // console.error('Unexpected server response:', response);
-        // Display an error message to the user
-        Alert.alert(
-          'Login Failed',
-          'An unexpected error occurred. Please try again later.',
-        );
+        setModalVisible(true); // Display modal for unexpected errors
       }
     } catch (error) {
-      // Handle network errors or other exceptions
-      console.error('Login failed:', error);
-      // Display an error message to the user
-      Alert.alert('Login Failed', 'Please Enter Correct Email and Password');
+      setModalVisible(true); // Display modal for network errors or other exceptions
     }
   };
-
-  //Backend End
 
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);
@@ -105,78 +88,122 @@ const LoginScreen = () => {
         <Text style={{color: '#333', marginLeft: 16}}>Email Address</Text>
         <TextInput
           onChangeText={text => setEmail(text)}
-          style={{
-            margin: 10,
-            padding: 13,
-            backgroundColor: '#D3D3D3',
-            color: '#333',
-            borderRadius: 20,
-            marginBottom: 10,
-          }}
+          value={email}
+          style={styles.input}
         />
 
         <Text style={{color: '#333', marginLeft: 15}}>Password</Text>
         <TextInput
           onChangeText={text => setPassword(text)}
+          value={password}
           secureTextEntry={!isPasswordVisible}
-          style={{
-            margin: 10,
-            padding: 13,
-            backgroundColor: '#D3D3D3',
-            color: '#333',
-            borderRadius: 20,
-            marginBottom: 10,
-          }}
+          style={styles.input}
         />
-        {/* <TouchableOpacity>
-          <AntDesign name="eye" size={24} color="black" />
-        </TouchableOpacity> */}
         <View
           style={{
             flexDirection: 'row',
             justifyContent: 'flex-end',
             marginRight: 15,
           }}>
-          <TouchableOpacity
-            onPress={togglePasswordVisibility}
-            style={styles.buttonContainer}>
-            <Text style={styles.buttonText}>
-              {isPasswordVisible ? 'Hide Password' : 'Show Password'}
-            </Text>
+          <TouchableOpacity onPress={togglePasswordVisibility}>
+            <Text>{isPasswordVisible ? 'Hide Password' : 'Show Password'}</Text>
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity
-          onPress={handleLogin}
-          style={{
-            paddingVertical: 12,
-            backgroundColor: '#FFD700',
-            marginHorizontal: 14,
-            borderRadius: 12,
-            marginTop: 15,
-          }}>
-          <Text
-            style={{
-              fontSize: 20,
-              fontWeight: 'bold',
-              textAlign: 'center',
-              color: '#707070',
-            }}>
-            Login
-          </Text>
+        <TouchableOpacity onPress={handleLogin} style={styles.loginButton}>
+          <Text style={styles.loginButtonText}>Login</Text>
         </TouchableOpacity>
       </View>
+
+      {/* Modal for displaying error */}
+      <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => {
+          setModalVisible(false);
+        }}>
+        <View style={styles.centeredView}>
+          <View style={styles.modalView}>
+            <Text style={styles.modalText}>Login Failed</Text>
+            <Text style={styles.modalText}>
+              An unexpected error occurred. Please try again later.
+            </Text>
+            <TouchableOpacity
+              style={styles.modalButton}
+              onPress={() => setModalVisible(false)}>
+              <Text style={styles.buttonText}>Close</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  TextInput: {
-    fontSize: 19,
-    borderWidth: 1,
-    alignItems: 'center',
+  input: {
+    margin: 10,
+    padding: 13,
+    backgroundColor: '#D3D3D3',
+    color: '#333',
+    borderRadius: 20,
+    marginBottom: 10,
+  },
+  buttonContainer: {
+    padding: 8,
+    borderRadius: 20,
+    backgroundColor: '#FFD700',
+  },
+  buttonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: '#707070',
+  },
+  loginButton: {
+    paddingVertical: 12,
+    backgroundColor: '#FFD700',
+    marginHorizontal: 14,
+    borderRadius: 12,
+    marginTop: 15,
+  },
+  loginButtonText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#707070',
+  },
+  // Modal styles
+  centeredView: {
+    flex: 1,
     justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalView: {
+    backgroundColor: 'white',
+    borderRadius: 20,
+    padding: 20,
+    alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.5,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  modalText: {
+    marginBottom: 10,
+    textAlign: 'center',
+    color: '#000000',
+    fontSize: 15,
+  },
+  modalButton: {
     marginTop: 10,
+    padding: 10,
+    borderRadius: 10,
   },
 });
 
