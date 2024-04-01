@@ -1,8 +1,8 @@
 import HomeScreen from './HomeScreen';
-import Account from './Account';
+import Transactions from './Transactions';
 import Category from './Category';
 import Goals from './Goals';
-import ManageExpense from './ManageExpense';
+import ManageTransaction from './ManageTransaction';
 import AddGoals from './AddGoals';
 
-export {HomeScreen, Account, Category, Goals, ManageExpense, AddGoals};
+export {HomeScreen, Transactions, Category, Goals, ManageTransaction, AddGoals};

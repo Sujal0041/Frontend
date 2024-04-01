@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 //   baseURL: ' http://192.168.1.65:8000/',
 // });
 
-export const BASE_URL = 'http://192.168.1.101:8000/';
+export const BASE_URL = 'http://100.64.213.12:8000/';
 
 const storeToken = async token => {
   try {
@@ -69,3 +69,49 @@ const logout = async () => {
 };
 
 export default logout;
+
+export const addWallet = async walletData => {
+  try {
+    const response = await axios.post(`${BASE_URL}api/wallet/add/`, walletData);
+    return response.data;
+  } catch (error) {
+    console.error('Error adding wallet:', error);
+    throw error;
+  }
+};
+
+// Function to fetch all wallets
+export const getAllWallets = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}api/wallets/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching wallets:', error);
+    throw error;
+  }
+};
+
+// Function to add a new transaction
+export const addTransaction = async transactionData => {
+  try {
+    const response = await axios.post(
+      `${BASE_URL}api/transaction/add/`,
+      transactionData,
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error adding transaction:', error);
+    throw error;
+  }
+};
+
+// Function to fetch all transactions
+export const getAllTransactions = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}api/transactions`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching transactions:', error);
+    throw error;
+  }
+};

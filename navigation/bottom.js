@@ -7,10 +7,10 @@ import {createStackNavigator} from '@react-navigation/stack';
 
 import {
   HomeScreen,
-  Account,
+  Transactions,
   Category,
   Goals,
-  ManageExpense,
+  ManageTransaction,
   AddGoals,
 } from '../screens/Index';
 
@@ -46,7 +46,7 @@ const MainTabNavigator = () => {
   const navigation = useNavigation();
 
   return (
-    <Tab.Navigator screenOptions={screenOptions}>
+    <Tab.Navigator initialRouteName="Home" screenOptions={screenOptions}>
       <Tab.Screen
         name="Home"
         component={HomeScreen}
@@ -89,8 +89,8 @@ const MainTabNavigator = () => {
       />
 
       <Tab.Screen
-        name="ManageExpense"
-        component={ManageExpense}
+        name="ManageTransaction"
+        component={ManageTransaction}
         options={{
           tabBarIcon: ({focused}) => {
             return (
@@ -133,14 +133,14 @@ const MainTabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="Account"
-        component={Account}
+        name="Transactions"
+        component={Transactions}
         options={{
           tabBarIcon: ({focused}) => {
             return (
               <View style={{alignItems: 'center', justifyContent: 'center'}}>
                 <AntDesign
-                  name="user"
+                  name="swap"
                   size={24}
                   color={focused ? '#007acc' : 'white'}
                 />
