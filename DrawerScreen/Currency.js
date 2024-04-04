@@ -33,8 +33,13 @@ const Currency = () => {
 
   return (
     <View style={styles.container}>
+      <View>
+        <Text style={{color: 'white', fontSize: 20, marginLeft: 2}}>
+          Base Currency
+        </Text>
+      </View>
       <Dropdown
-        style={[styles.dropdown, isFocus && {borderColor: 'blue'}]}
+        style={[styles.dropdown, isFocus && {borderColor: 'white'}]}
         placeholderStyle={styles.placeholderStyle}
         selectedTextStyle={styles.selectedTextStyle}
         inputSearchStyle={styles.inputSearchStyle}
@@ -62,18 +67,19 @@ export default Currency;
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'white',
-    padding: 16,
+    backgroundColor: '#1e1e1e',
+    padding: 9,
     flex: 1,
-    justifyContent: 'center',
-    alignContent: 'center',
+    justifyContent: 'top',
+    alignContent: 'top',
   },
   dropdown: {
     height: 50,
-    borderColor: 'gray',
+    borderColor: 'white',
     borderWidth: 0.5,
-    borderRadius: 8,
+    borderRadius: 7,
     paddingHorizontal: 8,
+    color: 'white',
   },
   icon: {
     marginRight: 5,
@@ -89,9 +95,11 @@ const styles = StyleSheet.create({
   },
   placeholderStyle: {
     fontSize: 16,
+    color: 'white',
   },
   selectedTextStyle: {
     fontSize: 16,
+    color: 'white',
   },
   iconStyle: {
     width: 20,
@@ -100,5 +108,6 @@ const styles = StyleSheet.create({
   inputSearchStyle: {
     height: 40,
     fontSize: 16,
+    color: 'white',
   },
 });
