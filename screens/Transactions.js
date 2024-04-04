@@ -37,39 +37,45 @@ const Transactions = () => {
     }
   };
 
-  const renderTransactionItem = ({item, index}) => {
+  const groupTransactionsByDate = () => {
+    const groupedTransactions = {};
+    transactions.forEach(transaction => {
+      const dateKey = new Date(transaction.date).toLocaleDateString('en-US');
+      if (!groupedTransactions[dateKey]) {
+        groupedTransactions[dateKey] = [];
+      }
+      groupedTransactions[dateKey].push(transaction);
+    });
+    return groupedTransactions;
+  };
+
+  const renderTransactionItem = ({item}) => {
     const itemStyle = item.type === 'expense' ? styles.expense : styles.income;
     const amountText =
       item.type === 'expense' ? `-${item.amount}` : `+${item.amount}`;
     const amountColor = item.type === 'expense' ? 'red' : 'green';
-    const formattedDate = new Date(item.date).toLocaleDateString('en-US', {
-      day: '2-digit',
-      month: 'long',
-      year: 'numeric',
-    });
     const formattedTime = new Date(item.date).toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
     });
 
-    const showDate = index === 0 || transactions[index - 1].date !== item.date;
-
     return (
-      <View>
-        {showDate && <Text style={styles.date}>{formattedDate}</Text>}
-        <View style={[styles.transactionItem, itemStyle]}>
-          <View>
-            <Text style={styles.category}>{item.category}</Text>
-            <Text>{item.notes}</Text>
-          </View>
-          <View>
-            <Text style={{color: amountColor, fontSize: 16}}>{amountText}</Text>
-            <Text>{formattedTime}</Text>
-          </View>
+      <View style={[styles.transactionItem, itemStyle]}>
+        <View>
+          <Text style={styles.category}>{item.category}</Text>
+          <Text>{item.notes}</Text>
+        </View>
+        <View>
+          <Text style={{color: amountColor, fontSize: 16}}>
+            {item.currency} {amountText}
+          </Text>
+          <Text>{formattedTime}</Text>
         </View>
       </View>
     );
   };
+
+  const groupedTransactions = groupTransactionsByDate();
 
   return (
     <View style={styles.container}>
@@ -80,9 +86,18 @@ const Transactions = () => {
         </View>
       )}
       <FlatList
-        data={transactions}
-        renderItem={renderTransactionItem}
-        keyExtractor={item => item.id.toString()}
+        data={Object.entries(groupedTransactions)}
+        renderItem={({item}) => (
+          <>
+            <Text style={styles.date}>{item[0]}</Text>
+            <FlatList
+              data={item[1]}
+              renderItem={renderTransactionItem}
+              keyExtractor={transaction => transaction.id.toString()}
+            />
+          </>
+        )}
+        keyExtractor={item => item[0]} // Use date as the key
       />
     </View>
   );
