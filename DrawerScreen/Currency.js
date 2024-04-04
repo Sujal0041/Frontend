@@ -16,16 +16,16 @@ const Currency = () => {
     try {
       const response = await axios.get('https://restcountries.com/v2/all');
       const countries = response.data;
-      const codes = countries.reduce((acc, country) => {
+      const uniqueCodesSet = new Set();
+      countries.forEach(country => {
         if (country.currencies) {
-          const currencyCodes = country.currencies.map(
-            currency => currency.code,
-          );
-          acc.push(...currencyCodes);
+          country.currencies.forEach(currency => {
+            uniqueCodesSet.add(currency.code);
+          });
         }
-        return acc;
-      }, []);
-      setCurrencyCodes(codes);
+      });
+      const uniqueCodes = Array.from(uniqueCodesSet);
+      setCurrencyCodes(uniqueCodes);
     } catch (error) {
       console.error('Error fetching currency codes:', error);
     }
@@ -33,29 +33,27 @@ const Currency = () => {
 
   return (
     <View style={styles.container}>
-      <View style={styles.DropdownCSS}>
-        <Dropdown
-          style={[styles.dropdown, isFocus && {borderColor: 'blue'}]}
-          placeholderStyle={styles.placeholderStyle}
-          selectedTextStyle={styles.selectedTextStyle}
-          inputSearchStyle={styles.inputSearchStyle}
-          iconStyle={styles.iconStyle}
-          data={currencyCodes.map(code => ({label: code, value: code}))}
-          search
-          maxHeight={300}
-          labelField="label"
-          valueField="value"
-          placeholder={!isFocus ? 'Select Currency' : '...'}
-          searchPlaceholder="Search Currency"
-          value={value}
-          onFocus={() => setIsFocus(true)}
-          onBlur={() => setIsFocus(false)}
-          onChange={item => {
-            setValue(item.value);
-            setIsFocus(false);
-          }}
-        />
-      </View>
+      <Dropdown
+        style={[styles.dropdown, isFocus && {borderColor: 'blue'}]}
+        placeholderStyle={styles.placeholderStyle}
+        selectedTextStyle={styles.selectedTextStyle}
+        inputSearchStyle={styles.inputSearchStyle}
+        iconStyle={styles.iconStyle}
+        data={currencyCodes.map(code => ({label: code, value: code}))}
+        search
+        maxHeight={300}
+        labelField="label"
+        valueField="value"
+        placeholder={!isFocus ? 'Select Currency' : '...'}
+        searchPlaceholder="Search Currency"
+        value={value}
+        onFocus={() => setIsFocus(true)}
+        onBlur={() => setIsFocus(false)}
+        onChange={item => {
+          setValue(item.value);
+          setIsFocus(false);
+        }}
+      />
     </View>
   );
 };
