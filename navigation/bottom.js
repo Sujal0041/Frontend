@@ -13,6 +13,8 @@ import {
   ManageTransaction,
   AddGoals,
 } from '../screens/Index';
+import Wallets from '../screens/Wallets';
+import AddWallet from '../screens/AddWallet';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -38,6 +40,30 @@ const GoalsNav = () => {
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="Goals" component={Goals} />
       <Stack.Screen name="AddGoals" component={AddGoals} />
+    </Stack.Navigator>
+  );
+};
+
+const ManageTransactionNav = () => {
+  const navigation = useNavigation();
+  return (
+    <Stack.Navigator>
+      <Stack.Screen name="ManageTransaction" component={ManageTransaction} />
+      <Stack.Screen name="AddWalletButton" component={AddWallet} />
+      <Stack.Screen
+        name="Wallets"
+        component={Wallets}
+        options={{
+          title: 'Wallets',
+          headerRight: () => (
+            <TouchableOpacity
+              onPress={() => navigation.navigate('AddWalletButton')}
+              style={{marginRight: 10}}>
+              <AntDesign name="plus" size={24} color="black" />
+            </TouchableOpacity>
+          ),
+        }}
+      />
     </Stack.Navigator>
   );
 };
@@ -90,7 +116,7 @@ const MainTabNavigator = () => {
 
       <Tab.Screen
         name="ManageTransaction"
-        component={ManageTransaction}
+        component={ManageTransactionNav}
         options={{
           tabBarIcon: ({focused}) => {
             return (
