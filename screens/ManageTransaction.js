@@ -11,53 +11,27 @@ import {
 } from 'react-native';
 import {addTransaction} from '../api/api';
 import DateTimePicker from '@react-native-community/datetimepicker';
-
-const Dropdown = ({defaultValue, options, onSelect}) => {
-  const [visible, setVisible] = useState(false);
-  const [selectedValue, setSelectedValue] = useState(defaultValue);
-
-  const handleOptionPress = option => {
-    setSelectedValue(option);
-    setVisible(false);
-    onSelect(option);
-  };
-
-  return (
-    <View style={styles.dropdown}>
-      <TouchableOpacity onPress={() => setVisible(!visible)}>
-        <Text>{selectedValue}</Text>
-      </TouchableOpacity>
-      <Modal
-        transparent={true}
-        visible={visible}
-        onRequestClose={() => setVisible(false)}>
-        <View style={styles.dropdownModal}>
-          {options.map((option, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.option}
-              onPress={() => handleOptionPress(option)}>
-              <Text>{option}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </Modal>
-    </View>
-  );
-};
+import {Dropdown} from 'react-native-element-dropdown'; // Importing Dropdown from the package
 
 const ManageTransaction = ({navigation}) => {
   const [amount, setAmount] = useState('');
+  // const [value, setValue] = useState(null);
+
   const [notes, setNotes] = useState('');
   const [transactionType, setTransactionType] = useState('Income');
   const [category, setCategory] = useState('Food');
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [isFocus, setIsFocus] = useState(false);
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
     setShowDatePicker(Platform.OS === 'ios');
     setDate(currentDate);
+  };
+
+  const navigateToWallets = () => {
+    navigation.navigate('Wallets'); // Navigating to the Wallets screen
   };
 
   const handleAddTransaction = async () => {
@@ -96,19 +70,55 @@ const ManageTransaction = ({navigation}) => {
         value={notes}
         onChangeText={setNotes}
       />
+      <TouchableOpacity style={styles.walletButton} onPress={navigateToWallets}>
+        <Text style={styles.walletButtonText}>Go to Wallets</Text>
+      </TouchableOpacity>
       <Dropdown
-        defaultValue={transactionType}
-        options={['Income', 'Expense']}
-        onSelect={setTransactionType}
+        style={[styles.dropdown, isFocus && {borderColor: 'white'}]}
+        placeholderStyle={styles.placeholderStyle}
+        selectedTextStyle={styles.selectedTextStyle}
+        iconStyle={styles.iconStyle}
+        data={[
+          {label: 'Income', value: 'Income'},
+          {label: 'Expense', value: 'Expense'},
+        ]}
+        labelField="label"
+        valueField="value"
+        placeholder={!isFocus ? 'Transaction Type' : '...'}
+        value={transactionType}
+        onFocus={() => setIsFocus(true)}
+        onBlur={() => setIsFocus(false)}
+        onChange={item => {
+          setTransactionType(item.value);
+          setIsFocus(false);
+        }}
       />
       <Dropdown
-        defaultValue={category}
-        options={['Food', 'Shopping', 'Entertainment', 'Transport', 'Others']}
-        onSelect={setCategory}
+        style={[styles.dropdown, isFocus && {borderColor: 'white'}]}
+        placeholderStyle={styles.placeholderStyle}
+        selectedTextStyle={styles.selectedTextStyle}
+        iconStyle={styles.iconStyle}
+        data={[
+          {label: 'Food', value: 'Food'},
+          {label: 'Shopping', value: 'Shopping'},
+          {label: 'Entertainment', value: 'Entertainment'},
+          {label: 'Transport', value: 'Transport'},
+          {label: 'Others', value: 'Others'},
+        ]}
+        labelField="label"
+        valueField="value"
+        placeholder={!isFocus ? 'Category' : '...'}
+        value={category}
+        onFocus={() => setIsFocus(true)}
+        onBlur={() => setIsFocus(false)}
+        onChange={item => {
+          setCategory(item.value);
+          setIsFocus(false);
+        }}
       />
       <TouchableOpacity onPress={() => setShowDatePicker(true)}>
         <Text style={styles.datePickerText}>
-          {date.toLocaleString('en-US')}
+          {date.toLocaleDateString('en-US')}
         </Text>
       </TouchableOpacity>
       {showDatePicker && (
@@ -139,6 +149,14 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginBottom: 10,
   },
+  dropdown: {
+    height: 50,
+    borderColor: 'white',
+    borderWidth: 0.5,
+    borderRadius: 7,
+    paddingHorizontal: 8,
+    color: 'white',
+  },
   input: {
     height: 40,
     borderColor: 'gray',
@@ -146,23 +164,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 10,
     paddingHorizontal: 10,
-  },
-  dropdown: {
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-    justifyContent: 'center',
-  },
-  dropdownModal: {
-    marginTop: 50,
-    backgroundColor: 'white',
-    padding: 10,
-    borderRadius: 5,
-  },
-  option: {
-    padding: 10,
   },
   addButton: {
     backgroundColor: 'green',

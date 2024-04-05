@@ -1,26 +1,25 @@
-// HomeScreen.js
-import React from 'react';
-import {View, Text, StyleSheet} from 'react-native';
+import {PieChart} from 'react-native-gifted-charts';
 
 const Category = () => {
+  const pieData = [
+    {value: 54, color: '#177AD5'},
+    {value: 40, color: '#79D2DE'},
+    {value: 20, color: '#ED6665'},
+  ];
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Category</Text>
-    </View>
+    <PieChart
+      data={pieData}
+      showText
+      textColor="black"
+      radius={150}
+      textSize={20}
+      focusOnPress
+      showValuesAsLabels
+      showTextBackground
+      textBackgroundRadius={26}
+    />
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#1e1e1e',
-  },
-  text: {
-    fontSize: 30,
-    color: 'white',
-  },
-});
 
 export default Category;

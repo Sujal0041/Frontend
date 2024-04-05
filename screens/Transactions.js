@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, FlatList, StyleSheet} from 'react-native';
+import {View, Text, FlatList, StyleSheet, SafeAreaView} from 'react-native';
 import {getAllTransactions, getAllWallets} from '../api/api';
 import {useFocusEffect} from '@react-navigation/native';
 

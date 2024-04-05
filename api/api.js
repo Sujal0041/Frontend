@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 //   baseURL: ' http://192.168.1.65:8000/',
 // });
 
-export const BASE_URL = 'http://192.168.1.101:8000/';
+export const BASE_URL = 'http://100.64.216.218:8000/';
 
 const storeToken = async token => {
   try {
@@ -108,7 +108,7 @@ export const addTransaction = async transactionData => {
 // Function to fetch all transactions
 export const getAllTransactions = async () => {
   try {
-    const response = await axios.get(`${BASE_URL}api/transactions`);
+    const response = await axios.get(`${BASE_URL}api/transactions/`);
     return response.data;
   } catch (error) {
     console.error('Error fetching transactions:', error);
