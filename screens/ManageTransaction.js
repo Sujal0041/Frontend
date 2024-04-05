@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -11,9 +11,11 @@ import {
 } from 'react-native';
 import {addTransaction} from '../api/api';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import {Dropdown} from 'react-native-element-dropdown'; // Importing Dropdown from the package
+import {Dropdown} from 'react-native-element-dropdown';
+import {useRoute} from '@react-navigation/native';
 
 const ManageTransaction = ({navigation}) => {
+  const route = useRoute();
   const [amount, setAmount] = useState('');
   // const [value, setValue] = useState(null);
 
@@ -23,6 +25,7 @@ const ManageTransaction = ({navigation}) => {
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isFocus, setIsFocus] = useState(false);
+  const [wallet, setWallet] = useState('');
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -34,17 +37,25 @@ const ManageTransaction = ({navigation}) => {
     navigation.navigate('Wallets'); // Navigating to the Wallets screen
   };
 
+  useEffect(() => {
+    // Check if selectedWallet parameter exists in the route and set it to the wallet state
+    if (route.params && route.params.selectedWallet) {
+      setWallet(route.params.selectedWallet);
+    }
+  }, [route.params]);
+
   const handleAddTransaction = async () => {
     const transactionData = {
       amount: parseFloat(amount),
       notes: notes.trim(),
       type: transactionType.toLowerCase(),
       category,
-      wallet: 1,
+      wallet: wallet.id,
       user: 6,
       date,
     };
     try {
+      console.log(transactionData);
       await addTransaction(transactionData);
       setAmount('');
       setNotes('');
@@ -70,8 +81,12 @@ const ManageTransaction = ({navigation}) => {
         value={notes}
         onChangeText={setNotes}
       />
-      <TouchableOpacity style={styles.walletButton} onPress={navigateToWallets}>
-        <Text style={styles.walletButtonText}>Go to Wallets</Text>
+      <TouchableOpacity
+        style={styles.walletButton}
+        onPress={() => navigation.navigate('Wallets')}>
+        <Text style={styles.walletButtonText}>
+          {wallet.name || 'Select Wallet'}
+        </Text>
       </TouchableOpacity>
       <Dropdown
         style={[styles.dropdown, isFocus && {borderColor: 'white'}]}
@@ -180,6 +195,15 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     fontSize: 16,
     color: 'blue',
+  },
+  walletButton: {
+    height: 40,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    marginBottom: 10,
+    paddingHorizontal: 10,
+    justifyContent: 'center', // Align text vertically center
   },
 });
 

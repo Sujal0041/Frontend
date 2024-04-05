@@ -48,7 +48,13 @@ const ManageTransactionNav = () => {
   const navigation = useNavigation();
   return (
     <Stack.Navigator>
-      <Stack.Screen name="ManageTransaction" component={ManageTransaction} />
+      <Stack.Screen
+        name="ManageTransaction"
+        component={ManageTransaction}
+        options={{
+          headerLeft: null, // Remove the back navigation button
+        }}
+      />
       <Stack.Screen name="AddWalletButton" component={AddWallet} />
       <Stack.Screen
         name="Wallets"

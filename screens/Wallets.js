@@ -1,15 +1,23 @@
 import React, {useState, useEffect} from 'react';
 
 import {View, Text, TouchableOpacity, StyleSheet} from 'react-native';
-import {getAllTransactions, getAllWallets} from '../api/api';
+import {getAllWallets} from '../api/api';
+import {useNavigation, useFocusEffect} from '@react-navigation/native';
 
 const Wallets = () => {
+  const navigation = useNavigation();
   const [wallets, setWallets] = useState([]);
 
   useEffect(() => {
     // Fetch wallets when component mounts
     fetchWallets();
   }, []);
+
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchWallets();
+    }, []),
+  );
 
   const fetchWallets = async () => {
     try {
@@ -22,7 +30,7 @@ const Wallets = () => {
   };
 
   const handleWalletPress = wallet => {
-    console.log('Selected Wallet:', wallet);
+    navigation.navigate('ManageTransaction', {selectedWallet: wallet});
     // Do something when a wallet is pressed
   };
 

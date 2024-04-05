@@ -72,6 +72,7 @@ export default logout;
 
 export const addWallet = async walletData => {
   try {
+    console.log(walletData);
     const response = await axios.post(`${BASE_URL}api/wallet/add/`, walletData);
     return response.data;
   } catch (error) {

@@ -7,19 +7,35 @@ import {
   StyleSheet,
 } from 'react-native';
 import {Dropdown} from 'react-native-element-dropdown';
-
+import {addWallet} from '../api/api'; // Import addWallet function
+import {useNavigation} from '@react-navigation/native';
 
 const AddWallet = () => {
   const [walletName, setWalletName] = useState('');
-  const [balance, setBalance] = useState('');
+  const [amount, setAmount] = useState('');
   const [walletType, setWalletType] = useState(null);
+  const navigation = useNavigation();
 
-  const handleSave = () => {
-    // Implement logic to save wallet details
-    // For example, you can dispatch an action to store the data in Redux or make an API call
-    console.log('Wallet Name:', walletName);
-    console.log('Balance:', balance);
-    console.log('Wallet Type:', walletType);
+  const handleSave = async () => {
+    // Create walletData object to send to addWallet function
+    const walletData = {
+      name: walletName,
+      amount: parseFloat(amount), // Convert amount to a float (assuming amount is a number)
+      type: walletType,
+      user: 6,
+    };
+
+    try {
+      // Call addWallet function with walletData
+      const response = await addWallet(walletData);
+      navigation.navigate('Wallets');
+
+      console.log('Wallet added successfully:', response);
+      // Optionally, you can navigate to another screen or perform other actions upon successful addition of wallet
+    } catch (error) {
+      console.error('Error adding wallet:', error);
+      // Handle error, e.g., show error message to user
+    }
   };
 
   return (
@@ -31,12 +47,12 @@ const AddWallet = () => {
         onChangeText={setWalletName}
         placeholder="Enter wallet name"
       />
-      <Text style={styles.label}>Balance:</Text>
+      <Text style={styles.label}>Amount:</Text>
       <TextInput
         style={styles.input}
-        value={balance}
-        onChangeText={setBalance}
-        placeholder="Enter balance"
+        value={amount}
+        onChangeText={setAmount}
+        placeholder="Enter amount"
         keyboardType="numeric"
       />
       <Text style={styles.label}>Type:</Text>

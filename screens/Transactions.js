@@ -107,6 +107,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 10,
+    paddingBottom: 70,
   },
   walletInfo: {
     backgroundColor: '#f0f0f0',
