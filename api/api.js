@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 //   baseURL: ' http://192.168.1.65:8000/',
 // });
 
-export const BASE_URL = 'http://100.64.216.218:8000/';
+export const BASE_URL = 'http://192.168.1.65:8000/';
 
 const storeToken = async token => {
   try {

@@ -176,6 +176,7 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '17%',
     padding: 5,
+    backgroundColor: 'red',
   },
   box2: {
     width: '100%',

@@ -1,16 +1,27 @@
 import React, {useEffect, useState} from 'react';
-import {View, Text, FlatList, StyleSheet, SafeAreaView} from 'react-native';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
+} from 'react-native';
 import {getAllTransactions, getAllWallets} from '../api/api';
 import {useFocusEffect} from '@react-navigation/native';
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
   const [wallet, setWallet] = useState([]);
+  const [selectedMonthIndex, setSelectedMonthIndex] = useState(
+    new Date().getMonth(),
+  );
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
 
   useEffect(() => {
     fetchTransactions();
     fetchWallet();
-  }, []);
+  }, [selectedMonthIndex, currentYear]); // Update transactions when month or year changes
 
   useFocusEffect(
     React.useCallback(() => {
@@ -22,7 +33,15 @@ const Transactions = () => {
   const fetchTransactions = async () => {
     try {
       const data = await getAllTransactions();
-      setTransactions(data);
+      setTransactions(
+        data.filter(transaction => {
+          const transactionDate = new Date(transaction.date);
+          return (
+            transactionDate.getMonth() === selectedMonthIndex &&
+            transactionDate.getFullYear() === currentYear
+          );
+        }),
+      );
     } catch (error) {
       console.error('Error fetching transactions:', error);
     }
@@ -39,13 +58,27 @@ const Transactions = () => {
 
   const groupTransactionsByDate = () => {
     const groupedTransactions = {};
+
     transactions.forEach(transaction => {
-      const dateKey = new Date(transaction.date).toLocaleDateString('en-US');
+      const dateKey = new Date(transaction.date).toLocaleDateString('en-US', {
+        month: 'long',
+        year: 'numeric',
+      });
+
       if (!groupedTransactions[dateKey]) {
         groupedTransactions[dateKey] = [];
       }
+
       groupedTransactions[dateKey].push(transaction);
     });
+
+    // Sort transactions within each group by date in descending order
+    Object.keys(groupedTransactions).forEach(key => {
+      groupedTransactions[key].sort(
+        (a, b) => new Date(b.date) - new Date(a.date),
+      );
+    });
+
     return groupedTransactions;
   };
 
@@ -77,28 +110,66 @@ const Transactions = () => {
 
   const groupedTransactions = groupTransactionsByDate();
 
+  const monthNames = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+
+  const handlePreviousMonth = () => {
+    setSelectedMonthIndex(prevIndex => (prevIndex === 0 ? 11 : prevIndex - 1));
+    if (selectedMonthIndex === 0) {
+      setCurrentYear(prevYear => prevYear - 1);
+    }
+  };
+
+  const handleNextMonth = () => {
+    setSelectedMonthIndex(prevIndex => (prevIndex === 11 ? 0 : prevIndex + 1));
+    if (selectedMonthIndex === 11) {
+      setCurrentYear(prevYear => prevYear + 1);
+    }
+  };
+
   return (
     <View style={styles.container}>
-      {wallet && (
-        <View style={styles.walletInfo}>
-          <Text style={styles.walletName}>{wallet.name}</Text>
-          <Text style={styles.walletAmount}>Amount: {wallet.amount}</Text>
-        </View>
+      {/* Month Selector */}
+      <View style={styles.monthPicker}>
+        <TouchableOpacity onPress={handlePreviousMonth}>
+          <Text style={styles.arrowText}>{'<'}</Text>
+        </TouchableOpacity>
+        <Text style={styles.monthOption}>
+          {monthNames[selectedMonthIndex]} {currentYear}
+        </Text>
+        <TouchableOpacity onPress={handleNextMonth}>
+          <Text style={styles.arrowText}>{'>'}</Text>
+        </TouchableOpacity>
+      </View>
+
+      {selectedMonthIndex >= 0 && (
+        <FlatList
+          data={Object.entries(groupedTransactions)}
+          renderItem={({item}) => (
+            <>
+              <Text style={styles.date}>{item[0]}</Text>
+              <FlatList
+                data={item[1]}
+                renderItem={renderTransactionItem}
+                keyExtractor={transaction => transaction.id.toString()}
+              />
+            </>
+          )}
+          keyExtractor={item => item[0]} // Use date as the key
+        />
       )}
-      <FlatList
-        data={Object.entries(groupedTransactions)}
-        renderItem={({item}) => (
-          <>
-            <Text style={styles.date}>{item[0]}</Text>
-            <FlatList
-              data={item[1]}
-              renderItem={renderTransactionItem}
-              keyExtractor={transaction => transaction.id.toString()}
-            />
-          </>
-        )}
-        keyExtractor={item => item[0]} // Use date as the key
-      />
     </View>
   );
 };
@@ -109,19 +180,21 @@ const styles = StyleSheet.create({
     padding: 10,
     paddingBottom: 70,
   },
-  walletInfo: {
-    backgroundColor: '#f0f0f0',
-    padding: 10,
+  monthPicker: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
     marginBottom: 10,
-    borderRadius: 5,
   },
-  walletName: {
-    fontWeight: 'bold',
+  monthOption: {
     fontSize: 18,
-    marginBottom: 5,
+    fontWeight: 'bold',
+    color: 'blue',
   },
-  walletAmount: {
-    fontSize: 16,
+  arrowText: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'blue',
   },
   transactionItem: {
     flexDirection: 'row',
