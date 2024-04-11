@@ -28,6 +28,7 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
   const [wallet, setWallet] = useState('');
   const [showWallets, setShowWallets] = useState(false);
   const [navigationKey, setNavigationKey] = useState(0);
+  const [isFormValid, setIsFormValid] = useState(true);
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -54,6 +55,11 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
   };
 
   const handleAddTransaction = async () => {
+    if (!amount || !notes || !category || !wallet) {
+      setIsFormValid(false);
+      return;
+    }
+
     const transactionData = {
       amount: parseFloat(amount),
       notes: notes.trim(),
@@ -71,6 +77,7 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
       setWallet('');
       setModalVisible(false);
       setNavigationKey(prevKey => prevKey + 1);
+      setIsFormValid(true);
     } catch (error) {
       console.error('Error adding transaction:', error);
     }
@@ -261,6 +268,19 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
               Add
             </Text>
           </TouchableOpacity>
+
+          {!isFormValid && (
+            <View style={styles.warningModal}>
+              <Text style={styles.warningText}>
+                Please fill all the details.
+              </Text>
+              <TouchableOpacity
+                onPress={() => setIsFormValid(true)}
+                style={styles.dismissButton}>
+                <Text style={styles.dismissButtonText}>Dismiss</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       )}
     </Modal>
@@ -408,6 +428,30 @@ const styles = StyleSheet.create({
   },
   selectedButtonText: {
     color: 'black', // Text color when selected
+  },
+  warningModal: {
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  warningText: {
+    color: 'white',
+    fontSize: 18,
+    marginBottom: 20,
+  },
+  dismissButton: {
+    backgroundColor: 'green',
+    padding: 10,
+    borderRadius: 5,
+  },
+  dismissButtonText: {
+    color: 'white',
+    fontWeight: 'bold',
   },
 });
 
