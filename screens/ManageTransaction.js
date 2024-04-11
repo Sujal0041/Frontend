@@ -7,23 +7,18 @@ import {
   StyleSheet,
   Modal,
   Platform,
-  Alert,
 } from 'react-native';
 import {addTransaction} from '../api/api';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {Dropdown} from 'react-native-element-dropdown';
 import {useRoute} from '@react-navigation/native';
-import HiModal from '../modal/HiModal';
-import {useNavigation} from '@react-navigation/native';
 import Wallets from './Wallets';
+import {useNavigation} from '@react-navigation/native';
 
 const ManageTransaction = ({modalVisible, setModalVisible}) => {
   const route = useRoute();
   const [amount, setAmount] = useState('');
-  // const [modalVisible, setModalVisible] = useState(false);
   const navigation = useNavigation();
-  // const [value, setValue] = useState(null);
-
   const [notes, setNotes] = useState('');
   const [transactionType, setTransactionType] = useState('Income');
   const [category, setCategory] = useState('Food');
@@ -41,15 +36,13 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
   };
 
   const navigateToWallets = () => {
-    navigation.navigate('Wallets'); // Navigating to the Wallets screen
+    navigation.navigate('Wallets');
   };
 
   useEffect(() => {
-    // Check if selectedWallet parameter exists in the route and set it to the wallet state
     if (route.params && route.params.selectedWallet) {
       setWallet(route.params.selectedWallet);
     }
-    // Check if showWallets parameter exists in the route and set it to the state
     if (route.params && typeof route.params.showWallets !== 'undefined') {
       setShowWallets(route.params.showWallets);
     }
@@ -57,7 +50,7 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
 
   const handleWalletSelection = selectedWallet => {
     setWallet(selectedWallet);
-    setShowWallets(false); // Close Wallets component
+    setShowWallets(false);
   };
 
   const handleAddTransaction = async () => {
@@ -75,7 +68,7 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
       await addTransaction(transactionData);
       setAmount('');
       setNotes('');
-      setWallet(''); // Reset selected wallet
+      setWallet('');
       setModalVisible(false);
       setNavigationKey(prevKey => prevKey + 1);
     } catch (error) {
@@ -85,86 +78,164 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
 
   return (
     <Modal visible={modalVisible} animationType="slide">
-      {showWallets ? ( // Conditionally render Wallets component
+      {showWallets ? (
         <Wallets handleWalletSelection={handleWalletSelection} />
       ) : (
-        <>
-          <TouchableOpacity
-            onPress={() => {
-              setModalVisible(false);
-            }}
-            style={styles.addButton}>
-            <Text style={styles.addButtonText}>Close</Text>
-          </TouchableOpacity>
-          <Text style={styles.title}>Add Transaction</Text>
+        <View style={styles.container}>
+          <View style={styles.header}>
+            <TouchableOpacity
+              onPress={() => {
+                setModalVisible(false);
+              }}
+              style={styles.cancelButton}>
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+            <Text style={styles.title}>Add Transaction</Text>
+          </View>
+
+          <View style={styles.transactionTypeContainer}>
+            <TouchableOpacity
+              style={[
+                styles.transactionTypeButton,
+                transactionType === 'Income' ? styles.selectedButton : null,
+              ]}
+              onPress={() => setTransactionType('Income')}>
+              <Text
+                style={[
+                  styles.transactionTypeButtonText,
+                  transactionType === 'Income'
+                    ? styles.selectedButtonText
+                    : null,
+                ]}>
+                Income
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.transactionTypeButton,
+                transactionType === 'Expense' ? styles.selectedButton : null,
+              ]}
+              onPress={() => setTransactionType('Expense')}>
+              <Text
+                style={[
+                  styles.transactionTypeButtonText,
+                  transactionType === 'Expense'
+                    ? styles.selectedButtonText
+                    : null,
+                ]}>
+                Expense
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <View style={styles.inputContainer}>
+            <Text
+              style={[
+                styles.inputSign,
+                transactionType === 'Income'
+                  ? {color: 'green'}
+                  : {color: 'red'},
+              ]}>
+              {transactionType === 'Income' ? '+' : '-'}
+            </Text>
+            <TextInput
+              style={[
+                styles.inputAmount,
+                transactionType === 'Income' && {color: 'green'},
+                transactionType === 'Expense' && {color: 'red'},
+              ]}
+              placeholder="0"
+              placeholderTextColor={
+                transactionType === 'Income' ? 'green' : 'red'
+              }
+              keyboardType="numeric"
+              value={amount}
+              onChangeText={text => {
+                const numericValue = text.replace(/[^0-9]/g, '');
+                const formattedValue = Number(numericValue).toLocaleString();
+                setAmount(formattedValue);
+              }}
+            />
+          </View>
+
           <TextInput
-            style={styles.input}
-            placeholder="Amount"
-            keyboardType="numeric"
-            value={amount}
-            onChangeText={setAmount}
-          />
-          <TextInput
-            style={styles.input}
+            style={[
+              styles.input,
+              {color: 'white'}, // Inline style for text color
+            ]}
             placeholder="Notes"
+            placeholderTextColor="#8c8c8e"
             value={notes}
             onChangeText={setNotes}
           />
+
+          <View style={styles.dropdownContainer}>
+            <Text style={styles.categoryText}>Category</Text>
+            <Dropdown
+              style={[
+                styles.dropdown,
+                isFocus && {borderColor: '#277ad0', borderWidth: 1}, // Change border color when focused
+              ]}
+              placeholderStyle={{color: '#8c8c8e'}} // Change placeholder text color
+              selectedTextStyle={{color: '#8c8c8e', fontWeight: 'bold'}} // Change selected option text color and font weight
+              iconStyle={{color: '#333'}} // Change icon color
+              data={[
+                {label: 'Food', value: 'Food'},
+                {label: 'Shopping', value: 'Shopping'},
+                {label: 'Entertainment', value: 'Entertainment'},
+                {label: 'Transport', value: 'Transport'},
+                {label: 'Others', value: 'Others'},
+              ]}
+              labelField="label"
+              valueField="value"
+              placeholder={!isFocus ? 'Category' : '...'}
+              value={category}
+              onFocus={() => setIsFocus(true)}
+              onBlur={() => setIsFocus(false)}
+              onChange={item => {
+                setCategory(item.value);
+                setIsFocus(false);
+              }}
+            />
+          </View>
+
           <TouchableOpacity
-            style={styles.walletButton}
+            style={[
+              styles.walletButton,
+              {backgroundColor: '#333136', borderRadius: 10, marginTop: 10},
+            ]}
             onPress={() => setShowWallets(true)}>
-            <Text style={styles.walletButtonText}>
-              {wallet.name || 'Select Wallet'}
-            </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}>
+              <Text
+                style={[
+                  styles.accountText,
+                  {color: 'white', fontWeight: 'bold', textAlign: 'left'},
+                ]}>
+                Account
+              </Text>
+              <Text
+                style={[
+                  styles.walletButtonText,
+                  {color: '#8c8c8e', fontWeight: 'bold', textAlign: 'right'},
+                ]}>
+                {wallet.name || 'Select Wallet'}
+              </Text>
+            </View>
           </TouchableOpacity>
-          <Dropdown
-            style={[styles.dropdown, isFocus && {borderColor: 'white'}]}
-            placeholderStyle={styles.placeholderStyle}
-            selectedTextStyle={styles.selectedTextStyle}
-            iconStyle={styles.iconStyle}
-            data={[
-              {label: 'Income', value: 'Income'},
-              {label: 'Expense', value: 'Expense'},
-            ]}
-            labelField="label"
-            valueField="value"
-            placeholder={!isFocus ? 'Transaction Type' : '...'}
-            value={transactionType}
-            onFocus={() => setIsFocus(true)}
-            onBlur={() => setIsFocus(false)}
-            onChange={item => {
-              setTransactionType(item.value);
-              setIsFocus(false);
-            }}
-          />
-          <Dropdown
-            style={[styles.dropdown, isFocus && {borderColor: 'white'}]}
-            placeholderStyle={styles.placeholderStyle}
-            selectedTextStyle={styles.selectedTextStyle}
-            iconStyle={styles.iconStyle}
-            data={[
-              {label: 'Food', value: 'Food'},
-              {label: 'Shopping', value: 'Shopping'},
-              {label: 'Entertainment', value: 'Entertainment'},
-              {label: 'Transport', value: 'Transport'},
-              {label: 'Others', value: 'Others'},
-            ]}
-            labelField="label"
-            valueField="value"
-            placeholder={!isFocus ? 'Category' : '...'}
-            value={category}
-            onFocus={() => setIsFocus(true)}
-            onBlur={() => setIsFocus(false)}
-            onChange={item => {
-              setCategory(item.value);
-              setIsFocus(false);
-            }}
-          />
-          <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-            <Text style={styles.datePickerText}>
-              {date.toLocaleDateString('en-US')}
-            </Text>
-          </TouchableOpacity>
+
+          <View style={styles.dateContainer}>
+            <Text style={styles.dateText}>Date</Text>
+            <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+              <Text style={styles.datePickerText}>
+                {date.toLocaleDateString('en-US')}
+              </Text>
+            </TouchableOpacity>
+          </View>
           {showDatePicker && (
             <DateTimePicker
               testID="dateTimePicker"
@@ -175,12 +246,22 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
               onChange={handleDateChange}
             />
           )}
+
           <TouchableOpacity
-            style={styles.addButton}
+            style={[
+              styles.addButton,
+              {backgroundColor: '#8c8c8e'}, // Background color
+            ]}
             onPress={handleAddTransaction}>
-            <Text style={styles.addButtonText}>Add</Text>
+            <Text
+              style={[
+                styles.addButtonText,
+                {color: 'white', fontFamily: 'roboto'}, // Text color and font family
+              ]}>
+              Add
+            </Text>
           </TouchableOpacity>
-        </>
+        </View>
       )}
     </Modal>
   );
@@ -190,20 +271,41 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: 'white',
+    backgroundColor: '#1e1e1e',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+    marginLeft: -9,
   },
   title: {
     fontSize: 18,
-    fontWeight: 'bold',
+    textAlign: 'center',
+    flex: 1,
+    marginRight: 50,
+    color: 'white',
+    fontFamily: 'roboto',
+  },
+  dropdownContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: 10,
   },
-  dropdown: {
-    height: 50,
-    borderColor: 'white',
-    borderWidth: 0.5,
-    borderRadius: 7,
-    paddingHorizontal: 8,
+  categoryText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginRight: 10,
     color: 'white',
+  },
+  dropdown: {
+    flex: 1,
+    borderColor: 'gray',
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 8,
+    height: 50,
   },
   input: {
     height: 40,
@@ -212,6 +314,25 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 10,
     paddingHorizontal: 10,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    height: 60,
+    width: '100%',
+    marginBottom: 20,
+    borderBottomWidth: 1,
+    borderColor: 'gray',
+    paddingHorizontal: 10,
+  },
+  inputSign: {
+    fontSize: 20,
+    marginRight: 5,
+  },
+  inputAmount: {
+    flex: 1,
+    fontSize: 20,
+    color: 'black', // Default text color
   },
   addButton: {
     backgroundColor: 'green',
@@ -224,10 +345,20 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
   },
-  datePickerText: {
+  dateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between', // Align items evenly in the row
     marginBottom: 10,
+  },
+  dateText: {
     fontSize: 16,
-    color: 'blue',
+    fontWeight: 'bold',
+    color: 'white',
+  },
+  datePickerText: {
+    fontSize: 16,
+    color: 'white', // Color of the chosen date
   },
   walletButton: {
     height: 40,
@@ -236,7 +367,47 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     marginBottom: 10,
     paddingHorizontal: 10,
-    justifyContent: 'center', // Align text vertically center
+    justifyContent: 'center',
+  },
+  cancelButton: {
+    padding: 10,
+  },
+  cancelButtonText: {
+    color: '#277ad0',
+    fontFamily: 'Roboto',
+    fontSize: 18,
+  },
+  transactionTypeContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+    paddingHorizontal: 20,
+    alignItems: 'center',
+    marginLeft: -20,
+    marginRight: -20,
+  },
+  transactionTypeButton: {
+    width: '50%',
+    height: 50,
+    borderRadius: 5,
+    borderWidth: 1,
+    borderColor: 'black',
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#333136',
+  },
+  selectedButton: {
+    backgroundColor: '#fffefe',
+    borderColor: 'green',
+  },
+  transactionTypeButtonText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    color: '#fffefe', // Default text color
+  },
+  selectedButtonText: {
+    color: 'black', // Text color when selected
   },
 });
 
