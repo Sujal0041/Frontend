@@ -1,17 +1,17 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {Text, Platform, View, TouchableOpacity} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import {useNavigation, DrawerActions} from '@react-navigation/native';
+import {useNavigation} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
 import {
   HomeScreen,
   Transactions,
-  Category,
   Goals,
   ManageTransaction,
   AddGoals,
+  More,
 } from '../screens/Index';
 import Wallets from '../screens/Wallets';
 import AddWallet from '../screens/AddWallet';
@@ -76,57 +76,61 @@ const ManageTransactionNav = () => {
 
 const MainTabNavigator = () => {
   const navigation = useNavigation();
+  const [modalVisible, setModalVisible] = useState(false);
 
   return (
-    <Tab.Navigator initialRouteName="Home" screenOptions={screenOptions}>
-      <Tab.Screen
-        name="Home"
-        component={HomeScreen}
-        options={({route}) => ({
-          tabBarIcon: ({focused}) => (
-            <View style={{alignItems: 'center', justifyContent: 'center'}}>
-              <AntDesign
-                name="home"
-                size={24}
-                color={focused ? '#007acc' : 'white'}
-              />
-              <Text
-                style={{fontSize: 12, color: focused ? '#007acc' : 'white'}}>
-                Home
-              </Text>
-            </View>
-          ),
-        })}
-      />
-      <Tab.Screen
-        name="Category"
-        component={Category}
-        options={{
-          tabBarIcon: ({focused}) => {
-            return (
+    <View style={{flex: 1}}>
+      <Tab.Navigator initialRouteName="Home" screenOptions={screenOptions}>
+        <Tab.Screen
+          name="Home"
+          component={HomeScreen}
+          options={({route}) => ({
+            tabBarIcon: ({focused}) => (
               <View style={{alignItems: 'center', justifyContent: 'center'}}>
                 <AntDesign
-                  name="linechart"
+                  name="home"
                   size={24}
                   color={focused ? '#007acc' : 'white'}
                 />
                 <Text
                   style={{fontSize: 12, color: focused ? '#007acc' : 'white'}}>
-                  Category
+                  Home
                 </Text>
               </View>
-            );
-          },
-        }}
-      />
+            ),
+          })}
+        />
+        <Tab.Screen
+          name="Transactions"
+          component={Transactions}
+          options={{
+            tabBarIcon: ({focused}) => {
+              return (
+                <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                  <AntDesign
+                    name="swap"
+                    size={24}
+                    color={focused ? '#007acc' : 'white'}
+                  />
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      color: focused ? '#007acc' : 'white',
+                    }}>
+                    Transactions
+                  </Text>
+                </View>
+              );
+            },
+          }}
+        />
 
-      <Tab.Screen
-        name="ManageTransaction"
-        component={ManageTransactionNav}
-        options={{
-          tabBarIcon: ({focused}) => {
-            return (
-              <View
+        <Tab.Screen
+          name="ManageTransaction"
+          options={{
+            tabBarIcon: ({focused}) => (
+              <TouchableOpacity
+                onPress={() => setModalVisible(true)}
                 style={{
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -137,55 +141,71 @@ const MainTabNavigator = () => {
                   borderRadius: Platform.OS == 'ios' ? 25 : 30,
                 }}>
                 <AntDesign name="plus" size={24} color="#fff" />
-              </View>
-            );
-          },
-        }}
-      />
+              </TouchableOpacity>
+            ),
+          }}>
+          {() => (
+            <ManageTransaction
+              modalVisible={modalVisible}
+              setModalVisible={setModalVisible}
+            />
+          )}
+        </Tab.Screen>
 
-      <Tab.Screen
-        name="Goals"
-        component={GoalsNav}
-        options={{
-          tabBarIcon: ({focused}) => {
-            return (
-              <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                <AntDesign
-                  name="checksquareo"
-                  size={24}
-                  color={focused ? '#007acc' : 'white'}
-                />
-                <Text
-                  style={{fontSize: 12, color: focused ? '#007acc' : 'white'}}>
-                  Goals
-                </Text>
-              </View>
-            );
-          },
-        }}
+        <Tab.Screen
+          name="Goals"
+          component={GoalsNav}
+          options={{
+            tabBarIcon: ({focused}) => {
+              return (
+                <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                  <AntDesign
+                    name="checksquareo"
+                    size={24}
+                    color={focused ? '#007acc' : 'white'}
+                  />
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      color: focused ? '#007acc' : 'white',
+                    }}>
+                    Goals
+                  </Text>
+                </View>
+              );
+            },
+          }}
+        />
+        <Tab.Screen
+          name="More"
+          component={More}
+          options={{
+            tabBarIcon: ({focused}) => {
+              return (
+                <View style={{alignItems: 'center', justifyContent: 'center'}}>
+                  <AntDesign
+                    name="swap"
+                    size={24}
+                    color={focused ? '#007acc' : 'white'}
+                  />
+                  <Text
+                    style={{
+                      fontSize: 12,
+                      color: focused ? '#007acc' : 'white',
+                    }}>
+                    More
+                  </Text>
+                </View>
+              );
+            },
+          }}
+        />
+      </Tab.Navigator>
+      <ManageTransaction
+        modalVisible={modalVisible}
+        setModalVisible={setModalVisible}
       />
-      <Tab.Screen
-        name="Transactions"
-        component={Transactions}
-        options={{
-          tabBarIcon: ({focused}) => {
-            return (
-              <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                <AntDesign
-                  name="swap"
-                  size={24}
-                  color={focused ? '#007acc' : 'white'}
-                />
-                <Text
-                  style={{fontSize: 12, color: focused ? '#007acc' : 'white'}}>
-                  Transactions
-                </Text>
-              </View>
-            );
-          },
-        }}
-      />
-    </Tab.Navigator>
+    </View>
   );
 };
 

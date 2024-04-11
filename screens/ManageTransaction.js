@@ -13,10 +13,15 @@ import {addTransaction} from '../api/api';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import {Dropdown} from 'react-native-element-dropdown';
 import {useRoute} from '@react-navigation/native';
+import HiModal from '../modal/HiModal';
+import {useNavigation} from '@react-navigation/native';
+import Wallets from './Wallets';
 
-const ManageTransaction = ({navigation}) => {
+const ManageTransaction = ({modalVisible, setModalVisible}) => {
   const route = useRoute();
   const [amount, setAmount] = useState('');
+  // const [modalVisible, setModalVisible] = useState(false);
+  const navigation = useNavigation();
   // const [value, setValue] = useState(null);
 
   const [notes, setNotes] = useState('');
@@ -26,6 +31,8 @@ const ManageTransaction = ({navigation}) => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [isFocus, setIsFocus] = useState(false);
   const [wallet, setWallet] = useState('');
+  const [showWallets, setShowWallets] = useState(false);
+  const [navigationKey, setNavigationKey] = useState(0);
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -42,7 +49,16 @@ const ManageTransaction = ({navigation}) => {
     if (route.params && route.params.selectedWallet) {
       setWallet(route.params.selectedWallet);
     }
+    // Check if showWallets parameter exists in the route and set it to the state
+    if (route.params && typeof route.params.showWallets !== 'undefined') {
+      setShowWallets(route.params.showWallets);
+    }
   }, [route.params]);
+
+  const handleWalletSelection = selectedWallet => {
+    setWallet(selectedWallet);
+    setShowWallets(false); // Close Wallets component
+  };
 
   const handleAddTransaction = async () => {
     const transactionData = {
@@ -59,97 +75,114 @@ const ManageTransaction = ({navigation}) => {
       await addTransaction(transactionData);
       setAmount('');
       setNotes('');
-      navigation.goBack();
+      setWallet(''); // Reset selected wallet
+      setModalVisible(false);
+      setNavigationKey(prevKey => prevKey + 1);
     } catch (error) {
       console.error('Error adding transaction:', error);
     }
   };
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Add Transaction</Text>
-      <TextInput
-        style={styles.input}
-        placeholder="Amount"
-        keyboardType="numeric"
-        value={amount}
-        onChangeText={setAmount}
-      />
-      <TextInput
-        style={styles.input}
-        placeholder="Notes"
-        value={notes}
-        onChangeText={setNotes}
-      />
-      <TouchableOpacity
-        style={styles.walletButton}
-        onPress={() => navigation.navigate('Wallets')}>
-        <Text style={styles.walletButtonText}>
-          {wallet.name || 'Select Wallet'}
-        </Text>
-      </TouchableOpacity>
-      <Dropdown
-        style={[styles.dropdown, isFocus && {borderColor: 'white'}]}
-        placeholderStyle={styles.placeholderStyle}
-        selectedTextStyle={styles.selectedTextStyle}
-        iconStyle={styles.iconStyle}
-        data={[
-          {label: 'Income', value: 'Income'},
-          {label: 'Expense', value: 'Expense'},
-        ]}
-        labelField="label"
-        valueField="value"
-        placeholder={!isFocus ? 'Transaction Type' : '...'}
-        value={transactionType}
-        onFocus={() => setIsFocus(true)}
-        onBlur={() => setIsFocus(false)}
-        onChange={item => {
-          setTransactionType(item.value);
-          setIsFocus(false);
-        }}
-      />
-      <Dropdown
-        style={[styles.dropdown, isFocus && {borderColor: 'white'}]}
-        placeholderStyle={styles.placeholderStyle}
-        selectedTextStyle={styles.selectedTextStyle}
-        iconStyle={styles.iconStyle}
-        data={[
-          {label: 'Food', value: 'Food'},
-          {label: 'Shopping', value: 'Shopping'},
-          {label: 'Entertainment', value: 'Entertainment'},
-          {label: 'Transport', value: 'Transport'},
-          {label: 'Others', value: 'Others'},
-        ]}
-        labelField="label"
-        valueField="value"
-        placeholder={!isFocus ? 'Category' : '...'}
-        value={category}
-        onFocus={() => setIsFocus(true)}
-        onBlur={() => setIsFocus(false)}
-        onChange={item => {
-          setCategory(item.value);
-          setIsFocus(false);
-        }}
-      />
-      <TouchableOpacity onPress={() => setShowDatePicker(true)}>
-        <Text style={styles.datePickerText}>
-          {date.toLocaleDateString('en-US')}
-        </Text>
-      </TouchableOpacity>
-      {showDatePicker && (
-        <DateTimePicker
-          testID="dateTimePicker"
-          value={date}
-          mode="datetime"
-          is24Hour={true}
-          display="default"
-          onChange={handleDateChange}
-        />
+    <Modal visible={modalVisible} animationType="slide">
+      {showWallets ? ( // Conditionally render Wallets component
+        <Wallets handleWalletSelection={handleWalletSelection} />
+      ) : (
+        <>
+          <TouchableOpacity
+            onPress={() => {
+              setModalVisible(false);
+            }}
+            style={styles.addButton}>
+            <Text style={styles.addButtonText}>Close</Text>
+          </TouchableOpacity>
+          <Text style={styles.title}>Add Transaction</Text>
+          <TextInput
+            style={styles.input}
+            placeholder="Amount"
+            keyboardType="numeric"
+            value={amount}
+            onChangeText={setAmount}
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Notes"
+            value={notes}
+            onChangeText={setNotes}
+          />
+          <TouchableOpacity
+            style={styles.walletButton}
+            onPress={() => setShowWallets(true)}>
+            <Text style={styles.walletButtonText}>
+              {wallet.name || 'Select Wallet'}
+            </Text>
+          </TouchableOpacity>
+          <Dropdown
+            style={[styles.dropdown, isFocus && {borderColor: 'white'}]}
+            placeholderStyle={styles.placeholderStyle}
+            selectedTextStyle={styles.selectedTextStyle}
+            iconStyle={styles.iconStyle}
+            data={[
+              {label: 'Income', value: 'Income'},
+              {label: 'Expense', value: 'Expense'},
+            ]}
+            labelField="label"
+            valueField="value"
+            placeholder={!isFocus ? 'Transaction Type' : '...'}
+            value={transactionType}
+            onFocus={() => setIsFocus(true)}
+            onBlur={() => setIsFocus(false)}
+            onChange={item => {
+              setTransactionType(item.value);
+              setIsFocus(false);
+            }}
+          />
+          <Dropdown
+            style={[styles.dropdown, isFocus && {borderColor: 'white'}]}
+            placeholderStyle={styles.placeholderStyle}
+            selectedTextStyle={styles.selectedTextStyle}
+            iconStyle={styles.iconStyle}
+            data={[
+              {label: 'Food', value: 'Food'},
+              {label: 'Shopping', value: 'Shopping'},
+              {label: 'Entertainment', value: 'Entertainment'},
+              {label: 'Transport', value: 'Transport'},
+              {label: 'Others', value: 'Others'},
+            ]}
+            labelField="label"
+            valueField="value"
+            placeholder={!isFocus ? 'Category' : '...'}
+            value={category}
+            onFocus={() => setIsFocus(true)}
+            onBlur={() => setIsFocus(false)}
+            onChange={item => {
+              setCategory(item.value);
+              setIsFocus(false);
+            }}
+          />
+          <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+            <Text style={styles.datePickerText}>
+              {date.toLocaleDateString('en-US')}
+            </Text>
+          </TouchableOpacity>
+          {showDatePicker && (
+            <DateTimePicker
+              testID="dateTimePicker"
+              value={date}
+              mode="datetime"
+              is24Hour={true}
+              display="default"
+              onChange={handleDateChange}
+            />
+          )}
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={handleAddTransaction}>
+            <Text style={styles.addButtonText}>Add</Text>
+          </TouchableOpacity>
+        </>
       )}
-      <TouchableOpacity style={styles.addButton} onPress={handleAddTransaction}>
-        <Text style={styles.addButtonText}>Add</Text>
-      </TouchableOpacity>
-    </View>
+    </Modal>
   );
 };
 
