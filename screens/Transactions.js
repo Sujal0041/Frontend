@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import {getAllTransactions, getAllWallets} from '../api/api';
 import {useFocusEffect} from '@react-navigation/native';
+import {ScrollView} from 'react-native-gesture-handler';
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
@@ -63,6 +64,7 @@ const Transactions = () => {
       const dateKey = new Date(transaction.date).toLocaleDateString('en-US', {
         month: 'long',
         year: 'numeric',
+        day: 'numeric',
       });
 
       if (!groupedTransactions[dateKey]) {
@@ -70,19 +72,63 @@ const Transactions = () => {
       }
 
       groupedTransactions[dateKey].push(transaction);
+
+      console.log('Before object', groupedTransactions);
     });
 
-    // Sort transactions within each group by date in descending order
-    Object.keys(groupedTransactions).forEach(key => {
-      groupedTransactions[key].sort(
-        (a, b) => new Date(b.date) - new Date(a.date),
-      );
+    const formatDate = date => {
+      const dateParts = date.split(', '); // Split the date string
+      const monthName = dateParts[0].split(' ')[0]; // Get the month name
+      const day = dateParts[0].split(' ')[1]; // Get the day
+
+      const year = dateParts[1]; // Get the year
+
+      // Convert the month name to its corresponding number
+      const monthNumber = monthNamesToNumber[monthName];
+
+      // Format the date as "YYYY-MM-DD"
+      const formattedDate = `${year}-${monthNumber}-${day}`;
+
+      // Extract the date components from the strings
+      return formattedDate;
+    };
+
+    const monthNamesToNumber = {
+      January: '01',
+      February: '02',
+      March: '03',
+      April: '04',
+      May: '05',
+      June: '06',
+      July: '07',
+      August: '08',
+      September: '09',
+      October: '10',
+      November: '11',
+      December: '12',
+    };
+
+    const sortedDates = Object.keys(groupedTransactions).sort((a, b) => {
+      const dateA = formatDate(a);
+      const dateB = formatDate(b);
+
+      return new Date(dateB) - new Date(dateA);
     });
 
-    return groupedTransactions;
+    console.log('Dates:', sortedDates);
+
+    const sortedTransactions = sortedDates.map(date => ({
+      date,
+      transactions: groupedTransactions[date],
+    }));
+
+    return sortedTransactions;
   };
 
   const renderTransactionItem = ({item}) => {
+    console.log('Item:', item);
+    if (!item) return null; // Add a check for undefined item
+
     const itemStyle = item.type === 'expense' ? styles.expense : styles.income;
     const amountText =
       item.type === 'expense' ? `-${item.amount}` : `+${item.amount}`;
@@ -109,6 +155,8 @@ const Transactions = () => {
   };
 
   const groupedTransactions = groupTransactionsByDate();
+
+  console.log('Grouped transactions:', groupedTransactions);
 
   const monthNames = [
     'January',
@@ -153,23 +201,18 @@ const Transactions = () => {
           <Text style={styles.arrowText}>{'>'}</Text>
         </TouchableOpacity>
       </View>
-
-      {selectedMonthIndex >= 0 && (
-        <FlatList
-          data={Object.entries(groupedTransactions)}
-          renderItem={({item}) => (
-            <>
-              <Text style={styles.date}>{item[0]}</Text>
-              <FlatList
-                data={item[1]}
-                renderItem={renderTransactionItem}
-                keyExtractor={transaction => transaction.id.toString()}
-              />
-            </>
-          )}
-          keyExtractor={item => item[0]} // Use date as the key
-        />
-      )}
+      <ScrollView>
+        {groupedTransactions.map(group => (
+          <View key={group.date}>
+            <Text style={styles.date}>{group.date}</Text>
+            <FlatList
+              data={group.transactions}
+              renderItem={({item}) => renderTransactionItem({item})}
+              keyExtractor={item => item.id.toString()}
+            />
+          </View>
+        ))}
+      </ScrollView>
     </View>
   );
 };

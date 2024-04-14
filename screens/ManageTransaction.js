@@ -24,6 +24,7 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
   const [category, setCategory] = useState('Food');
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showTimePicker, setShowTimePicker] = useState(false);
   const [isFocus, setIsFocus] = useState(false);
   const [wallet, setWallet] = useState('');
   const [showWallets, setShowWallets] = useState(false);
@@ -34,10 +35,13 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
     const currentDate = selectedDate || date;
     setShowDatePicker(Platform.OS === 'ios');
     setDate(currentDate);
+    setShowDatePicker(false);
   };
 
-  const navigateToWallets = () => {
-    navigation.navigate('Wallets');
+  const handleTimeChange = (event, selectedTime) => {
+    const currentTime = selectedTime || date;
+    setDate(currentTime);
+    setShowTimePicker(false);
   };
 
   useEffect(() => {
@@ -134,7 +138,6 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
               </Text>
             </TouchableOpacity>
           </View>
-
           <View style={styles.inputContainer}>
             <Text
               style={[
@@ -157,11 +160,7 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
               }
               keyboardType="numeric"
               value={amount}
-              onChangeText={text => {
-                const numericValue = text.replace(/[^0-9]/g, '');
-                const formattedValue = Number(numericValue).toLocaleString();
-                setAmount(formattedValue);
-              }}
+              onChangeText={setAmount}
             />
           </View>
 
@@ -185,7 +184,7 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
               ]}
               placeholderStyle={{color: '#8c8c8e'}} // Change placeholder text color
               selectedTextStyle={{color: '#8c8c8e', fontWeight: 'bold'}} // Change selected option text color and font weight
-              iconStyle={{color: '#333'}} // Change icon color
+              iconStyle={{color: '#333333'}} // Change icon color
               data={[
                 {label: 'Food', value: 'Food'},
                 {label: 'Shopping', value: 'Shopping'},
@@ -247,10 +246,31 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
             <DateTimePicker
               testID="dateTimePicker"
               value={date}
-              mode="datetime"
+              mode="date" // Set mode to 'datetime' to include both date and time selection
               is24Hour={true}
               display="default"
               onChange={handleDateChange}
+              onCancel={() => setShowDatePicker(false)}
+            />
+          )}
+
+          <View style={styles.dateContainer}>
+            <Text style={styles.dateText}>Time</Text>
+            <TouchableOpacity onPress={() => setShowTimePicker(true)}>
+              <Text style={styles.datePickerText}>
+                {date.toLocaleTimeString('en-US')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {showTimePicker && (
+            <DateTimePicker
+              testID="timePicker"
+              value={date}
+              mode="time"
+              is24Hour={true}
+              display="default"
+              onChange={handleTimeChange}
+              onCancel={() => setShowTimePicker(false)}
             />
           )}
 
