@@ -16,6 +16,12 @@ import {
 import Wallets from '../screens/Wallets';
 import AddWallet from '../screens/AddWallet';
 
+import Currency from '../MoreScreen/Currency';
+import AccountSettings from '../MoreScreen/AccountSettings';
+import Budget from '../MoreScreen/Budget';
+import AddBudget from '../MoreScreen/AddBudget';
+import BudgetDetail from '../MoreScreen/BudgetDetail';
+
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
@@ -44,6 +50,19 @@ const GoalsNav = () => {
   );
 };
 
+const MoreNav = () => {
+  const navigation = useNavigation();
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name="More" component={More} />
+      <Stack.Screen name="AccountSettings" component={AccountSettings} />
+      <Stack.Screen name="Currency" component={Currency} />
+      <Stack.Screen name="Budget" component={Budget} />
+      <Stack.Screen name="BudgetDetail" component={BudgetDetail} />
+    </Stack.Navigator>
+  );
+};
+
 const ManageTransactionNav = () => {
   const navigation = useNavigation();
   return (
@@ -52,7 +71,7 @@ const ManageTransactionNav = () => {
         name="ManageTransaction"
         component={ManageTransaction}
         options={{
-          headerLeft: null, // Remove the back navigation button
+          headerLeft: null,
         }}
       />
       <Stack.Screen name="AddWalletButton" component={AddWallet} />
@@ -90,10 +109,10 @@ const MainTabNavigator = () => {
                 <AntDesign
                   name="home"
                   size={24}
-                  color={focused ? '#007acc' : 'white'}
+                  color={focused ? '#277ad0' : 'white'}
                 />
                 <Text
-                  style={{fontSize: 12, color: focused ? '#007acc' : 'white'}}>
+                  style={{fontSize: 12, color: focused ? '#277ad0' : 'white'}}>
                   Home
                 </Text>
               </View>
@@ -110,12 +129,12 @@ const MainTabNavigator = () => {
                   <AntDesign
                     name="swap"
                     size={24}
-                    color={focused ? '#007acc' : 'white'}
+                    color={focused ? '#277ad0' : 'white'}
                   />
                   <Text
                     style={{
                       fontSize: 12,
-                      color: focused ? '#007acc' : 'white',
+                      color: focused ? '#277ad0' : 'white',
                     }}>
                     Transactions
                   </Text>
@@ -162,12 +181,12 @@ const MainTabNavigator = () => {
                   <AntDesign
                     name="checksquareo"
                     size={24}
-                    color={focused ? '#007acc' : 'white'}
+                    color={focused ? '#277ad0' : 'white'}
                   />
                   <Text
                     style={{
                       fontSize: 12,
-                      color: focused ? '#007acc' : 'white',
+                      color: focused ? '#277ad0' : 'white',
                     }}>
                     Goals
                   </Text>
@@ -178,20 +197,20 @@ const MainTabNavigator = () => {
         />
         <Tab.Screen
           name="More"
-          component={More}
+          component={MoreNav}
           options={{
             tabBarIcon: ({focused}) => {
               return (
                 <View style={{alignItems: 'center', justifyContent: 'center'}}>
                   <AntDesign
-                    name="swap"
+                    name="ellipsis1"
                     size={24}
-                    color={focused ? '#007acc' : 'white'}
+                    color={focused ? '#277ad0' : 'white'}
                   />
                   <Text
                     style={{
                       fontSize: 12,
-                      color: focused ? '#007acc' : 'white',
+                      color: focused ? '#277ad0' : 'white',
                     }}>
                     More
                   </Text>

@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 //   baseURL: ' http://192.168.1.65:8000/',
 // });
 
-export const BASE_URL = 'http://192.168.1.65:8000/';
+export const BASE_URL = 'http://192.168.1.111:8000/';
 
 const storeToken = async token => {
   try {
@@ -57,7 +57,7 @@ const removeAuthorizationHeader = () => {
 };
 
 // Logout function
-const logout = async () => {
+export const logout = async () => {
   try {
     await clearToken(); // Clear the stored token
     removeAuthorizationHeader(); // Remove authorization headers from Axios
@@ -67,8 +67,6 @@ const logout = async () => {
     console.error('Logout failed:', error);
   }
 };
-
-export default logout;
 
 export const addWallet = async walletData => {
   try {
@@ -113,6 +111,40 @@ export const getAllTransactions = async () => {
     return response.data;
   } catch (error) {
     console.error('Error fetching transactions:', error);
+    throw error;
+  }
+};
+
+// Function to fetch budget list and create a new budget
+export const addBudget = async budgetData => {
+  try {
+    console.log('budgetData', budgetData);
+    const response = await axios.post(`${BASE_URL}api/budget/`, budgetData);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching budget list or creating a budget:', error);
+    throw error;
+  }
+};
+
+// Function to fetch a budget detail by pk
+export const getBudgetDetail = async pk => {
+  try {
+    const response = await axios.get(`${BASE_URL}api/budget/${pk}/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching budget detail:', error);
+    throw error;
+  }
+};
+
+// Function to fetch budget list
+export const getBudgetList = async () => {
+  try {
+    const response = await axios.get(`${BASE_URL}api/budget-list/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching budget list:', error);
     throw error;
   }
 };
