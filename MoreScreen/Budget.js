@@ -1,5 +1,6 @@
 import React, {useState, useEffect} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, FlatList} from 'react-native';
+import * as Progress from 'react-native-progress';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {useNavigation} from '@react-navigation/native';
 import AddBudget from './AddBudget';
@@ -28,12 +29,14 @@ const Budget = () => {
       <TouchableOpacity
         onPress={() => navigation.navigate('BudgetDetail', {budget: item})}>
         <Text style={styles.text}>{item.name}</Text>
+        <Progress.Bar progress={0.3} width={200} />
       </TouchableOpacity>
     </View>
   );
 
   return (
     <View style={styles.container}>
+      <Text style={styles.text}>Budgets</Text>
       <TouchableOpacity
         style={styles.backButton}
         onPress={() => navigation.goBack()}>
@@ -50,7 +53,6 @@ const Budget = () => {
         setModalVisible={setModalVisible}
       />
       <ScrollView>
-        <Text style={styles.text}>Budgets</Text>
         <FlatList
           data={budgets}
           renderItem={renderItem}
@@ -72,6 +74,11 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: 'white',
+    position: 'absolute',
+    top: 20,
+    left: 0,
+    right: 0,
+    textAlign: 'center',
   },
   backButton: {
     position: 'absolute',
@@ -93,6 +100,9 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 20,
     fontWeight: 'bold',
+  },
+  budgetItem: {
+    marginVertical: 10,
   },
 });
 
