@@ -13,22 +13,23 @@ const Budget = () => {
   const [budgets, setBudgets] = useState([]);
 
   useEffect(() => {
-    const fetchBudgets = async () => {
-      try {
-        const data = await getBudgetList();
-        setBudgets(data);
-      } catch (error) {
-        console.error(error);
-      }
-    };
     fetchBudgets();
   }, []);
+
+  const fetchBudgets = async () => {
+    try {
+      const data = await getBudgetList();
+      setBudgets(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const renderItem = ({item}) => (
     <View style={styles.budgetItem}>
       <TouchableOpacity
         onPress={() => navigation.navigate('BudgetDetail', {budget: item})}>
-        <Text style={styles.text}>{item.name}</Text>
+        <Text style={styles.budgetlist}>{item.name}</Text>
         <Progress.Bar progress={0.3} width={200} />
       </TouchableOpacity>
     </View>
@@ -46,11 +47,12 @@ const Budget = () => {
       <TouchableOpacity
         style={styles.plusButton}
         onPress={() => setModalVisible(true)}>
-        <Text style={styles.plusButtonText}>+</Text>
+        <AntDesign name="plus" size={24} color="white" />
       </TouchableOpacity>
       <AddBudget
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
+        fetchBudgets={fetchBudgets}
       />
       <ScrollView>
         <FlatList
@@ -66,9 +68,11 @@ const Budget = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    // justifyContent: 'center',
+    // alignItems: 'center',
     backgroundColor: '#1e1e1e',
+    paddingHorizontal: 20,
+    paddingTop: 60,
   },
   text: {
     fontSize: 20,
@@ -80,9 +84,16 @@ const styles = StyleSheet.create({
     right: 0,
     textAlign: 'center',
   },
+  budgetlist: {
+    color: 'white',
+    fontSize: 20,
+    fontWeight: 'bold',
+    textAlign: 'left',
+    paddingBottom: 10,
+  },
   backButton: {
     position: 'absolute',
-    top: 12,
+    top: 20,
     left: 12,
     zIndex: 1,
   },
@@ -90,7 +101,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     right: 10,
-    backgroundColor: 'lightgrey',
+    // backgroundColor: 'lightgrey',
     padding: 10,
     borderRadius: 50,
     width: 60,
@@ -102,7 +113,11 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   budgetItem: {
+    backgroundColor: '#333136',
     marginVertical: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
   },
 });
 
