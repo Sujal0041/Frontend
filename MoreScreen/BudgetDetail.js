@@ -15,8 +15,16 @@ const BudgetDetail = ({route}) => {
         <AntDesign name="arrowleft" size={24} color="white" />
       </TouchableOpacity>
       <Text style={styles.text}>{budget.name}</Text>
-      <Text style={styles.text}>{budget.amount} </Text>
-      <Text style={styles.text}>{budget.frequency}</Text>
+      <Text style={styles.text}>Used: {budget.amount * budget.progress} </Text>
+      <Text style={styles.text}>
+        Used Percentage: {Math.round(budget.progress * 100)}%
+      </Text>
+      <Text style={styles.text}>
+        Remaining: {budget.amount - budget.amount * budget.progress}{' '}
+      </Text>
+      <Text style={styles.text}>
+        Remaining Percentage: {Math.round((1 - budget.progress) * 100)}%
+      </Text>
     </View>
   );
 };

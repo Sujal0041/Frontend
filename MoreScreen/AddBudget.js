@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import Wallets from '../screens/Wallets';
 import {Dropdown} from 'react-native-element-dropdown';
-import {addBudget} from '../api/api';
+import {addBudget, getAllCategories} from '../api/api';
 
 const AddBudget = ({modalVisible, setModalVisible, fetchBudgets}) => {
   const [amount, setAmount] = useState('');
@@ -19,11 +19,25 @@ const AddBudget = ({modalVisible, setModalVisible, fetchBudgets}) => {
   const [wallet, setWallet] = useState('');
   const [isFocus, setIsFocus] = useState(false); // Define isFocus state
   const [isFormValid, setIsFormValid] = useState(true);
+  const [allCategories, setAllCategories] = useState([]);
 
   const handleWalletSelection = selectedWallet => {
     setWallet(selectedWallet);
     setShowWallets(false);
   };
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categories = await getAllCategories();
+        console.log('category', categories);
+        setAllCategories(categories);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+    fetchCategories();
+  }, []);
 
   const handleAddBudget = async () => {
     try {
@@ -94,13 +108,10 @@ const AddBudget = ({modalVisible, setModalVisible, fetchBudgets}) => {
                 placeholderStyle={{color: '#8c8c8e'}} // Change placeholder text color
                 selectedTextStyle={{color: '#8c8c8e', fontWeight: 'bold'}} // Change selected option text color and font weight
                 iconStyle={{color: '#333333'}} // Change icon color
-                data={[
-                  {label: 'Food', value: 'Food'},
-                  {label: 'Shopping', value: 'Shopping'},
-                  {label: 'Entertainment', value: 'Entertainment'},
-                  {label: 'Transport', value: 'Transport'},
-                  {label: 'Others', value: 'Others'},
-                ]}
+                data={allCategories.map(category => ({
+                  label: category.category_name,
+                  value: category.id,
+                }))}
                 labelField="label"
                 valueField="value"
                 placeholder={!isFocus ? 'Category' : '...'}
@@ -223,6 +234,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: 'gray',
     paddingHorizontal: 10,
+    marginTop: 15,
   },
   inputAmount: {
     flex: 1,
