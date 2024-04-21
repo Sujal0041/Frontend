@@ -16,7 +16,6 @@ import reactNativeHTMLToPDF from 'react-native-html-to-pdf';
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
-  const [wallet, setWallet] = useState([]);
   const {userToken} = useAuth();
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(
     new Date().getMonth(),
@@ -25,13 +24,11 @@ const Transactions = () => {
 
   useEffect(() => {
     fetchTransactions();
-    fetchWallet();
   }, [selectedMonthIndex, currentYear]); // Update transactions when month or year changes
 
   useFocusEffect(
     React.useCallback(() => {
       fetchTransactions();
-      fetchWallet();
     }, []),
   );
 
@@ -50,15 +47,6 @@ const Transactions = () => {
       );
     } catch (error) {
       console.error('Error fetching transactions:', error);
-    }
-  };
-
-  const fetchWallet = async () => {
-    try {
-      const wallets = await getAllWallets();
-      setWallet(wallets[0]);
-    } catch (error) {
-      console.error('Error fetching wallet:', error);
     }
   };
 
