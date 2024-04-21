@@ -10,6 +10,9 @@ import {
 import Wallets from '../screens/Wallets';
 import {Dropdown} from 'react-native-element-dropdown';
 import {addBudget, getAllCategories} from '../api/api';
+import {useAuth} from '../api/authContext';
+import DateTimePicker from '@react-native-community/datetimepicker';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 
 const AddBudget = ({modalVisible, setModalVisible, fetchBudgets}) => {
   const [amount, setAmount] = useState('');
@@ -17,9 +20,14 @@ const AddBudget = ({modalVisible, setModalVisible, fetchBudgets}) => {
   const [category, setCategory] = useState('Food');
   const [showWallets, setShowWallets] = useState(false);
   const [wallet, setWallet] = useState('');
-  const [isFocus, setIsFocus] = useState(false); // Define isFocus state
+  const [isFocus, setIsFocus] = useState(false);
   const [isFormValid, setIsFormValid] = useState(true);
   const [allCategories, setAllCategories] = useState([]);
+  const [startDate, setStartDate] = useState(new Date());
+  const [endDate, setEndDate] = useState(new Date());
+  const [showStartDatePicker, setShowStartDatePicker] = useState(false);
+  const [showEndDatePicker, setShowEndDatePicker] = useState(false);
+  const {userToken} = useAuth();
 
   const handleWalletSelection = selectedWallet => {
     setWallet(selectedWallet);
@@ -39,19 +47,35 @@ const AddBudget = ({modalVisible, setModalVisible, fetchBudgets}) => {
     fetchCategories();
   }, []);
 
+  const handleEndDateChange = (event, selectedDate) => {
+    setEndDate(selectedDate);
+    setShowEndDatePicker(false);
+  };
+
+  const handleStartDateChange = (event, selectedDate) => {
+    setStartDate(selectedDate);
+    setShowStartDatePicker(false);
+  };
+
   const handleAddBudget = async () => {
     try {
-      await addBudget({
-        amount: parseFloat(amount), // Convert amount to a float (assuming amount is a number)
-        name: BName,
-        category,
-        wallet: wallet.id,
-        user: 6,
-      });
+      await addBudget(
+        {
+          amount: parseFloat(amount),
+          name: BName,
+          category,
+          wallet: wallet.id,
+          start_date: startDate.toISOString().split('T')[0],
+          end_date: endDate.toISOString().split('T')[0],
+        },
+        userToken,
+      );
       setAmount('');
       setBName('');
       setCategory('Food');
       setWallet('');
+      setStartDate(new Date());
+      setEndDate(new Date());
       setModalVisible(false);
       fetchBudgets();
     } catch (error) {
@@ -63,10 +87,13 @@ const AddBudget = ({modalVisible, setModalVisible, fetchBudgets}) => {
     <Modal visible={modalVisible} animationType="slide">
       {/* <View style={styles.container}> */}
       {showWallets ? (
-        <Wallets handleWalletSelection={handleWalletSelection} />
+        <Wallets
+          handleWalletSelection={handleWalletSelection}
+          setShowWallets={setShowWallets}
+        />
       ) : (
         <View style={styles.modalContainer}>
-          <View>
+          <View style>
             <TouchableOpacity
               onPress={() => {
                 setModalVisible(false);
@@ -74,7 +101,7 @@ const AddBudget = ({modalVisible, setModalVisible, fetchBudgets}) => {
               style={styles.cancelButton}>
               <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
-            <Text style={styles.title}>Add Transaction</Text>
+            <Text style={styles.title}>Add Budget</Text>
           </View>
 
           <View>
@@ -161,6 +188,52 @@ const AddBudget = ({modalVisible, setModalVisible, fetchBudgets}) => {
                 </Text>
               </View>
             </TouchableOpacity>
+            <View style={styles.dateContainer}>
+              <Text style={styles.dateText}>Start Date</Text>
+
+              {showStartDatePicker && (
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  value={startDate}
+                  mode="date"
+                  display="default"
+                  onChange={handleStartDateChange}
+                  onCancel={() => setShowStartDatePicker(false)}
+                />
+              )}
+              <Text style={styles.datePickerText}>
+                {startDate.toLocaleDateString('en-US')}
+                {'  '}
+              </Text>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => setShowStartDatePicker(true)}>
+                <AntDesign name="calendar" size={24} color="white" />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.dateContainer}>
+              <Text style={styles.dateText}>End Date</Text>
+
+              {showEndDatePicker && (
+                <DateTimePicker
+                  testID="dateTimePicker"
+                  value={endDate}
+                  mode="date"
+                  display="default"
+                  onChange={handleEndDateChange}
+                  onCancel={() => setShowEndDatePicker(false)}
+                />
+              )}
+              <Text style={styles.datePickerText}>
+                {endDate.toLocaleDateString('en-US')}
+                {'  '}
+              </Text>
+              <TouchableOpacity
+                style={styles.backButton}
+                onPress={() => setShowEndDatePicker(true)}>
+                <AntDesign name="calendar" size={24} color="white" />
+              </TouchableOpacity>
+            </View>
             <TouchableOpacity
               style={[styles.addButton, {backgroundColor: '#8c8c8e'}]}
               onPress={handleAddBudget}>
@@ -240,6 +313,28 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 20,
     color: 'white', // Default text color
+  },
+  dateContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+  dateText: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginRight: 10,
+    color: 'white',
+    flex: 1,
+  },
+  dateInput: {
+    borderWidth: 0,
+    borderBottomWidth: 1,
+    borderBottomColor: 'gray',
+    alignItems: 'flex-start',
+  },
+  datePickerText: {
+    fontSize: 16,
+    color: 'white', // Color of the chosen date
   },
   title: {
     fontSize: 18,
