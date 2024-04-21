@@ -6,14 +6,18 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
+  SectionList,
 } from 'react-native';
 import {getAllTransactions, getAllWallets} from '../api/api';
 import {useFocusEffect} from '@react-navigation/native';
-import {ScrollView} from 'react-native-gesture-handler';
+import {useAuth} from '../api/authContext';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import reactNativeHTMLToPDF from 'react-native-html-to-pdf';
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
   const [wallet, setWallet] = useState([]);
+  const {userToken} = useAuth();
   const [selectedMonthIndex, setSelectedMonthIndex] = useState(
     new Date().getMonth(),
   );
@@ -33,7 +37,8 @@ const Transactions = () => {
 
   const fetchTransactions = async () => {
     try {
-      const data = await getAllTransactions();
+      const data = await getAllTransactions(userToken);
+
       setTransactions(
         data.filter(transaction => {
           const transactionDate = new Date(transaction.date);
@@ -72,8 +77,6 @@ const Transactions = () => {
       }
 
       groupedTransactions[dateKey].push(transaction);
-
-      console.log('Before object', groupedTransactions);
     });
 
     const formatDate = date => {
@@ -115,19 +118,16 @@ const Transactions = () => {
       return new Date(dateB) - new Date(dateA);
     });
 
-    console.log('Dates:', sortedDates);
-
     const sortedTransactions = sortedDates.map(date => ({
       date,
-      transactions: groupedTransactions[date],
+      data: groupedTransactions[date],
     }));
 
     return sortedTransactions;
   };
 
   const renderTransactionItem = ({item}) => {
-    console.log('Item:', item);
-    if (!item) return null; // Add a check for undefined item
+    if (!item) return null;
 
     const itemStyle = item.type === 'expense' ? styles.expense : styles.income;
     const amountText =
@@ -143,6 +143,7 @@ const Transactions = () => {
         <View>
           <Text style={styles.category}>{item.category}</Text>
           <Text>{item.notes}</Text>
+          <Text>Wallet: {item.wallet}</Text>
         </View>
         <View>
           <Text style={{color: amountColor, fontSize: 16}}>
@@ -155,8 +156,6 @@ const Transactions = () => {
   };
 
   const groupedTransactions = groupTransactionsByDate();
-
-  console.log('Grouped transactions:', groupedTransactions);
 
   const monthNames = [
     'January',
@@ -187,32 +186,106 @@ const Transactions = () => {
     }
   };
 
+  const generatePDF = async () => {
+    const options = {
+      html: `
+      <style>
+        body {
+          font-family: Arial, sans-serif;
+        }
+        h1 {
+          text-align: center;
+          margin-bottom: 20px;
+        }
+        ul {
+          list-style-type: none;
+          padding: 0;
+        }
+        .section {
+          margin-bottom: 30px;
+        }
+        .section-date {
+          font-size: 18px;
+          font-weight: bold;
+          margin-bottom: 10px;
+        }
+        .transaction {
+          border: 1px solid #ccc;
+          border-radius: 5px;
+          padding: 10px;
+          margin-bottom: 10px;
+        }
+        .transaction-info {
+          list-style-type: none;
+          padding: 0;
+          margin: 0;
+        }
+        .transaction-info li {
+          margin-bottom: 5px;
+        }
+      </style>
+      <h1>${monthNames[selectedMonthIndex]} ${currentYear}</h1>
+      <div>
+        ${groupedTransactions
+          .map(
+            section => `
+          <div class="section">
+            <h2 class="section-date">${section.date}</h2>
+            <ul>
+              ${section.data
+                .map(
+                  transaction => `
+                <li class="transaction">
+                  <ul class="transaction-info">
+                    <li><strong>Date:</strong> ${transaction.date}</li>
+                    <li><strong>Amount:</strong> ${transaction.amount}</li>
+                    <li><strong>Category:</strong> ${transaction.category}</li>
+                    <li><strong>Notes:</strong> ${transaction.notes}</li>
+                  </ul>
+                </li>
+              `,
+                )
+                .join('')}
+            </ul>
+          </div>
+        `,
+          )
+          .join('')}
+      </div>
+    `,
+      fileName: `Transactions - ${Date.now()}`,
+      directory: 'Documents',
+    };
+    const file = await reactNativeHTMLToPDF.convert(options);
+    console.log(file);
+  };
+
   return (
     <View style={styles.container}>
+      {/* PDF Icon */}
+      <TouchableOpacity style={styles.pdfIconContainer} onPress={generatePDF}>
+        <AntDesign name="pdffile1" size={30} color="blue" />
+      </TouchableOpacity>
       {/* Month Selector */}
       <View style={styles.monthPicker}>
         <TouchableOpacity onPress={handlePreviousMonth}>
-          <Text style={styles.arrowText}>{'<'}</Text>
+          <AntDesign name="left" size={24} color="blue" />
         </TouchableOpacity>
         <Text style={styles.monthOption}>
           {monthNames[selectedMonthIndex]} {currentYear}
         </Text>
         <TouchableOpacity onPress={handleNextMonth}>
-          <Text style={styles.arrowText}>{'>'}</Text>
+          <AntDesign name="right" size={24} color="blue" />
         </TouchableOpacity>
       </View>
-      <ScrollView>
-        {groupedTransactions.map(group => (
-          <View key={group.date}>
-            <Text style={styles.date}>{group.date}</Text>
-            <FlatList
-              data={group.transactions}
-              renderItem={({item}) => renderTransactionItem({item})}
-              keyExtractor={item => item.id.toString()}
-            />
-          </View>
-        ))}
-      </ScrollView>
+      <SectionList
+        sections={groupedTransactions}
+        keyExtractor={(item, index) => item + index}
+        renderItem={({item}) => renderTransactionItem({item})}
+        renderSectionHeader={({section: {date}}) => (
+          <Text style={styles.date}>{date}</Text>
+        )}
+      />
     </View>
   );
 };
@@ -222,6 +295,11 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     paddingBottom: 70,
+  },
+  pdfIconContainer: {
+    position: 'absolute',
+    top: 10,
+    right: 10,
   },
   monthPicker: {
     flexDirection: 'row',
@@ -233,6 +311,11 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: 'blue',
+  },
+  date: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 10,
   },
   arrowText: {
     fontSize: 20,
