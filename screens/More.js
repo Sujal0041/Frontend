@@ -9,8 +9,8 @@ const More = () => {
 
   const handleLogout = async () => {
     try {
-      await logout(); // Call the logout function
-      navigation.navigate('Login'); // Navigate to the login screen
+      await logout();
+      navigation.navigate('Login');
     } catch (error) {
       console.error('Logout failed:', error);
     }
@@ -41,7 +41,8 @@ const More = () => {
 
       <View style={[styles.row, {marginTop: 20}]}>
         <TouchableOpacity
-          style={[styles.button, styles.button3, {width: '50%'}]}>
+          style={[styles.button, styles.button3, {width: '50%'}]}
+          onPress={() => navigation.navigate('ViewReminder')}>
           <AntDesign
             name="notification"
             size={24}
@@ -50,9 +51,11 @@ const More = () => {
           />
           <Text style={styles.text}>Reminder</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={[styles.button, styles.button3]}>
+        <TouchableOpacity
+          style={[styles.button, styles.button3]}
+          onPress={() => navigation.navigate('AddWallet')}>
           <AntDesign name="wallet" size={24} color="#fff" style={styles.icon} />
-          <Text style={styles.text}>Wallets</Text>
+          <Text style={styles.text}>Add Wallet</Text>
         </TouchableOpacity>
       </View>
 
@@ -64,9 +67,11 @@ const More = () => {
           <Text style={styles.text}>Budget</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={[styles.button, styles.button3]}>
+        <TouchableOpacity
+          style={[styles.button, styles.button3]}
+          onPress={() => navigation.navigate('ViewCategory')}>
           <AntDesign name="logout" size={24} color="#fff" style={styles.icon} />
-          <Text style={styles.text}>About Us</Text>
+          <Text style={styles.text}>Category</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -84,7 +89,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 12,
     right: 12,
-    color: '#fff',
+    color: '#988780',
   },
   profileButtonText: {
     fontSize: 16,
@@ -118,10 +123,10 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     color: '#fff',
-    marginLeft: 5, // Added marginLeft to create space between icon and text
+    marginLeft: 10, // Adjusted marginLeft for space between icon and text
   },
   icon: {
-    marginLeft: 5, // Added marginLeft to align icon and text
+    marginLeft: 5, // Adjusted marginLeft for space between icon and text
   },
 });
 

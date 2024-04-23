@@ -11,13 +11,15 @@ import {useNavigation} from '@react-navigation/native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome6';
 import {getAllCategories} from '../api/api';
+import {useAuth} from '../api/authContext';
 
 const ViewCategory = () => {
   const [categories, setCategories] = useState([]);
+  const {userToken} = useAuth();
 
   const fetchCategories = async () => {
     try {
-      const response = await getAllCategories();
+      const response = await getAllCategories(userToken);
       setCategories(response);
     } catch (error) {
       console.error('Error fetching categories:', error);

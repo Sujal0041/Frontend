@@ -85,7 +85,7 @@ const HomeScreen = () => {
 
   // Calculate the maximum value for the y-axis, rounded up to the nearest 1000
   const maxYAxisValue =
-    Math.ceil(Math.max(maxIncome, maxExpense) / 1000) * 1000;
+    Math.ceil(Math.max(maxIncome, maxExpense) / 5000) * 5000;
 
   const getBarChartData = () => {
     const monthlyData = {};
@@ -169,8 +169,9 @@ const HomeScreen = () => {
           style={{
             flex: 1,
             flexDirection: 'row',
-            justifyContent: 'space-evenly',
+            // justifyContent: 'center',
             marginTop: 24,
+            marginLeft: 110,
           }}>
           <View style={{flexDirection: 'row', alignItems: 'center'}}>
             <View
@@ -187,7 +188,7 @@ const HomeScreen = () => {
                 width: 60,
                 height: 18,
                 color: 'white',
-                marginRight: 400,
+                // marginRight: 400,
               }}>
               Income
             </Text>
@@ -263,7 +264,7 @@ const HomeScreen = () => {
 
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <Text style={[styles.text3]}>Expense</Text>
-            <Text style={[styles.text3, {color: '#dc3545'}]}>
+            <Text style={[styles.text3, {color: '#EC4646'}]}>
               Rs{' '}
               {transactions.reduce((acc, curr) => {
                 return curr.type === 'expense'

@@ -9,12 +9,12 @@ import {
 } from 'react-native';
 import Wallets from '../screens/Wallets';
 import {Dropdown} from 'react-native-element-dropdown';
-import {addBudget, getAllCategories} from '../api/api';
+import {addGoal, getAllCategories} from '../api/api';
 import {useAuth} from '../api/authContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 
-const AddBudget = ({modalVisible, setModalVisible, fetchBudgets}) => {
+const AddGoal = ({modalVisible, setModalVisible, fetchGoals}) => {
   const [amount, setAmount] = useState('');
   const [BName, setBName] = useState('');
   const [category, setCategory] = useState('Food');
@@ -57,29 +57,28 @@ const AddBudget = ({modalVisible, setModalVisible, fetchBudgets}) => {
     setShowStartDatePicker(false);
   };
 
-  const handleAddBudget = async () => {
+  const handleAddGoal = async () => {
     try {
-      await addBudget(
+      await addGoal(
         {
           amount: parseFloat(amount),
           name: BName,
-          category,
           wallet: wallet.id,
           start_date: startDate.toISOString().split('T')[0],
           end_date: endDate.toISOString().split('T')[0],
+          status: 'ongoing',
         },
         userToken,
       );
       setAmount('');
       setBName('');
-      setCategory('Food');
       setWallet('');
       setStartDate(new Date());
       setEndDate(new Date());
       setModalVisible(false);
-      fetchBudgets();
+      fetchGoals();
     } catch (error) {
-      console.error('Error adding budget:', error);
+      console.error('Error adding goal:', error);
     }
   };
 
@@ -101,7 +100,7 @@ const AddBudget = ({modalVisible, setModalVisible, fetchBudgets}) => {
               style={styles.cancelButton}>
               <Text style={styles.cancelButtonText}>Cancel</Text>
             </TouchableOpacity>
-            <Text style={styles.title}>Add Budget</Text>
+            <Text style={styles.title}>Add Goal</Text>
           </View>
 
           <View>
@@ -118,37 +117,10 @@ const AddBudget = ({modalVisible, setModalVisible, fetchBudgets}) => {
             <View>
               <TextInput
                 style={[styles.input, {color: 'white'}]}
-                placeholder="Budget Name"
+                placeholder="Goal Name"
                 placeholderTextColor="#8c8c8e"
                 value={BName}
                 onChangeText={setBName}
-              />
-            </View>
-
-            <View style={styles.dropdownContainer}>
-              <Text style={styles.categoryText}>Category</Text>
-              <Dropdown
-                style={[
-                  styles.dropdown,
-                  isFocus && {borderColor: '#277ad0', borderWidth: 1}, // Change border color when focused
-                ]}
-                placeholderStyle={{color: '#8c8c8e'}} // Change placeholder text color
-                selectedTextStyle={{color: '#8c8c8e', fontWeight: 'bold'}} // Change selected option text color and font weight
-                iconStyle={{color: '#333333'}} // Change icon color
-                data={allCategories.map(category => ({
-                  label: category.category_name,
-                  value: category.id,
-                }))}
-                labelField="label"
-                valueField="value"
-                placeholder={!isFocus ? 'Category' : '...'}
-                value={category}
-                onFocus={() => setIsFocus(true)}
-                onBlur={() => setIsFocus(false)}
-                onChange={item => {
-                  setCategory(item.value);
-                  setIsFocus(false);
-                }}
               />
             </View>
 
@@ -236,7 +208,7 @@ const AddBudget = ({modalVisible, setModalVisible, fetchBudgets}) => {
             </View>
             <TouchableOpacity
               style={[styles.addButton, {backgroundColor: '#8c8c8e'}]}
-              onPress={handleAddBudget}>
+              onPress={handleAddGoal}>
               <Text
                 style={[
                   styles.addButtonText,
@@ -291,6 +263,8 @@ const styles = StyleSheet.create({
     top: 10,
     left: 10,
     padding: 10,
+    width: 80,
+    height: 45,
   },
   cancelButtonText: {
     color: '#277ad0',
@@ -388,4 +362,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AddBudget;
+export default AddGoal;

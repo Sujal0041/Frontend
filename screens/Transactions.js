@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   SectionList,
 } from 'react-native';
-import {getAllTransactions, getAllWallets} from '../api/api';
+import {getAllTransactions, getAllWallets, getAllCategories} from '../api/api';
 import {useFocusEffect} from '@react-navigation/native';
 import {useAuth} from '../api/authContext';
 import AntDesign from 'react-native-vector-icons/AntDesign';
@@ -21,16 +21,32 @@ const Transactions = () => {
     new Date().getMonth(),
   );
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [wallets, setWallets] = useState([]);
+  const [categories, setCategories] = useState([]);
 
   useEffect(() => {
     fetchTransactions();
+    fetchWallets();
+    fetchCategories();
   }, [selectedMonthIndex, currentYear]); // Update transactions when month or year changes
 
   useFocusEffect(
     React.useCallback(() => {
       fetchTransactions();
+      fetchWallets();
+      fetchCategories();
     }, []),
   );
+
+  const fetchWallets = async () => {
+    try {
+      const walletsData = await getAllWallets(userToken);
+      setWallets(walletsData);
+    } catch (error) {
+      console.error('Error fetching wallets:', error);
+      // Handle error, e.g., show error message to user
+    }
+  };
 
   const fetchTransactions = async () => {
     try {
@@ -47,6 +63,16 @@ const Transactions = () => {
       );
     } catch (error) {
       console.error('Error fetching transactions:', error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const categories = await getAllCategories(userToken);
+      console.log('category', categories);
+      setCategories(categories);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
     }
   };
 
@@ -120,7 +146,7 @@ const Transactions = () => {
     const itemStyle = item.type === 'expense' ? styles.expense : styles.income;
     const amountText =
       item.type === 'expense' ? `-${item.amount}` : `+${item.amount}`;
-    const amountColor = item.type === 'expense' ? 'red' : 'green';
+    const amountColor = item.type === 'expense' ? '#EC4646' : 'green';
     const formattedTime = new Date(item.date).toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
@@ -129,15 +155,25 @@ const Transactions = () => {
     return (
       <View style={[styles.transactionItem, itemStyle]}>
         <View>
-          <Text style={styles.category}>{item.category}</Text>
-          <Text>{item.notes}</Text>
-          <Text>Wallet: {item.wallet}</Text>
+          {categories.find(category => category.id === item.category) ? (
+            <Text style={styles.category}>
+              {categories.find(category => category.id === item.category)
+                ?.category_name || 'Goals'}
+            </Text>
+          ) : (
+            <Text style={styles.category}>Goals</Text>
+          )}
+          {wallets.find(wallet => wallet.id === item.wallet)?.name && (
+            <Text style={styles.category1}>
+              {wallets.find(wallet => wallet.id === item.wallet)?.name}
+            </Text>
+          )}
         </View>
         <View>
           <Text style={{color: amountColor, fontSize: 16}}>
-            {item.currency} {amountText}
+            NPR{item.currency} {amountText}
           </Text>
-          <Text>{formattedTime}</Text>
+          <Text style={styles.category1}>{formattedTime}</Text>
         </View>
       </View>
     );
@@ -252,18 +288,18 @@ const Transactions = () => {
     <View style={styles.container}>
       {/* PDF Icon */}
       <TouchableOpacity style={styles.pdfIconContainer} onPress={generatePDF}>
-        <AntDesign name="pdffile1" size={30} color="blue" />
+        <AntDesign name="pdffile1" size={30} color="white" />
       </TouchableOpacity>
       {/* Month Selector */}
       <View style={styles.monthPicker}>
         <TouchableOpacity onPress={handlePreviousMonth}>
-          <AntDesign name="left" size={24} color="blue" />
+          <AntDesign name="left" size={24} color="white" />
         </TouchableOpacity>
         <Text style={styles.monthOption}>
           {monthNames[selectedMonthIndex]} {currentYear}
         </Text>
         <TouchableOpacity onPress={handleNextMonth}>
-          <AntDesign name="right" size={24} color="blue" />
+          <AntDesign name="right" size={24} color="white" />
         </TouchableOpacity>
       </View>
       <SectionList
@@ -283,32 +319,36 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 10,
     paddingBottom: 70,
+    backgroundColor: '#1e1e1e',
   },
   pdfIconContainer: {
     position: 'absolute',
     top: 10,
     right: 10,
+    color: 'white',
   },
   monthPicker: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
     marginBottom: 10,
+    color: 'white',
   },
   monthOption: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: 'blue',
+    color: 'white',
   },
   date: {
     fontSize: 16,
     fontWeight: 'bold',
     marginBottom: 10,
+    color: 'white',
   },
   arrowText: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: 'blue',
+    color: 'white',
   },
   transactionItem: {
     flexDirection: 'row',
@@ -317,21 +357,21 @@ const styles = StyleSheet.create({
     padding: 10,
     marginBottom: 5,
     borderRadius: 5,
+    backgroundColor: 'white',
   },
   expense: {
-    backgroundColor: 'rgba(255, 0, 0, 0.3)',
+    backgroundColor: '#333136',
   },
   income: {
-    backgroundColor: 'rgba(0, 255, 0, 0.3)',
+    backgroundColor: '#333136',
   },
   category: {
     fontWeight: 'bold',
     marginBottom: 5,
+    color: 'white',
   },
-  date: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginBottom: 10,
+  category1: {
+    color: 'white',
   },
 });
 

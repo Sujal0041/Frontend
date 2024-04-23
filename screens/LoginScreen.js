@@ -14,6 +14,7 @@ import {SafeAreaView} from 'react-native-safe-area-context';
 import axios from 'axios';
 import {BASE_URL} from '../api/api';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import {useAuth} from '../api/authContext';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
@@ -21,6 +22,7 @@ const LoginScreen = () => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false); // State for modal visibility
   const navigation = useNavigation();
+  const {signIn} = useAuth();
 
   const handleLogin = async () => {
     try {
@@ -37,6 +39,8 @@ const LoginScreen = () => {
 
         setEmail('');
         setPassword('');
+
+        signIn(token);
 
         navigation.navigate('MainTab');
       } else {

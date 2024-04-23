@@ -55,7 +55,7 @@ const Budget = () => {
       );
 
       const budgetWithProgress = {...budget, progress};
-      console.log(budgetWithProgress);
+      console.log('budgetWithProgress', budgets);
       const existingBudgetIndex = budgets.findIndex(b => b.id === budget.id);
       if (existingBudgetIndex === -1) {
         setBudgets(prevBudgets => [...prevBudgets, budgetWithProgress]);
@@ -69,21 +69,24 @@ const Budget = () => {
   };
 
   const renderItem = ({item}) => (
-    <View style={styles.budgetItem}>
-      <TouchableOpacity
-        onPress={() => navigation.navigate('BudgetDetail', {budget: item})}>
-        <View style={styles.topContainer}>
-          <Text style={styles.budgetName}>{item.name}</Text>
-          <Text style={styles.budgetAmount}>{item.amount}</Text>
-          <Text style={styles.progress}>
-            {(item.progress * 100).toFixed(2)}%
-          </Text>
-        </View>
-        <View style={styles.progressBar}>
-          <Progress.Bar progress={item.progress || 0} width={330} />
-        </View>
-      </TouchableOpacity>
-    </View>
+    console.log('item', budgets),
+    (
+      <View style={styles.budgetItem}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('BudgetDetail', {budget: item})}>
+          <View style={styles.topContainer}>
+            <Text style={styles.budgetName}>{item.name}</Text>
+            <Text style={styles.budgetAmount}>{item.amount}</Text>
+            <Text style={styles.progress}>
+              {(item.progress * 100).toFixed(2)}%
+            </Text>
+          </View>
+          <View style={styles.progressBar}>
+            <Progress.Bar progress={item.progress || 0} width={330} />
+          </View>
+        </TouchableOpacity>
+      </View>
+    )
   );
 
   return (
@@ -122,18 +125,22 @@ const styles = StyleSheet.create({
     backgroundColor: '#1e1e1e',
     paddingHorizontal: 20,
     paddingTop: 60,
+    paddingBottom: 60,
   },
   text: {
     fontSize: 20,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
+    position: 'relative',
+    bottom: 40,
+    right: -1,
   },
-  budgetItem: {
-    backgroundColor: '#333136',
-    marginVertical: 10,
-    borderRadius: 5,
-  },
+  // budgetItem: {
+  //   backgroundColor: '#333136',
+  //   marginVertical: 10,
+  //   borderRadius: 5,
+  // },
   topContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',

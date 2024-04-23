@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 //   baseURL: ' http://192.168.1.65:8000/',
 // });
 
-export const BASE_URL = 'http://192.168.1.111:8000/';
+export const BASE_URL = 'http://192.168.1.65:8000/';
 
 const storeToken = async token => {
   try {
@@ -61,10 +61,9 @@ const removeAuthorizationHeader = () => {
 // Logout function
 export const logout = async () => {
   try {
-    await clearToken(); // Clear the stored token
-    removeAuthorizationHeader(); // Remove authorization headers from Axios
+    await clearToken();
+    removeAuthorizationHeader();
     console.log('Logout successful');
-    // You may want to navigate to the login screen or perform any other action after logout
   } catch (error) {
     console.error('Logout failed:', error);
   }
@@ -127,12 +126,12 @@ export const addTransaction = async (transactionData, userToken) => {
 // Function to fetch all transactions
 export const getAllTransactions = async userToken => {
   try {
-    console.log('userToken', userToken);
     const response = await axios.get(`${BASE_URL}api/transactions/`, {
       headers: {
         Authorization: `Bearer ${userToken}`,
       },
     });
+    console.log('response.data', response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching transactions:', error);
@@ -159,6 +158,21 @@ export const addBudget = async (budgetData, userToken) => {
   }
 };
 
+export const addGoal = async (goalData, userToken) => {
+  try {
+    console.log('goalData', goalData);
+    const response = await axios.post(`${BASE_URL}api/goal/`, goalData, {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Error adding goal:', error);
+    throw error;
+  }
+};
+
 // Function to fetch a budget detail by pk
 export const getBudgetDetail = async pk => {
   try {
@@ -181,10 +195,25 @@ export const getBudgetList = async () => {
   }
 };
 
-// Function to fetch all categories
-export const getAllCategories = async () => {
+export const getGoalList = async () => {
   try {
-    const response = await axios.get(`${BASE_URL}api/category/`);
+    const response = await axios.get(`${BASE_URL}api/goal-list/`);
+    return response.data;
+  } catch (error) {
+    console.error('Error fetching goal list:', error);
+    throw error;
+  }
+};
+
+// Function to fetch all categories
+export const getAllCategories = async userToken => {
+  try {
+    const response = await axios.get(`${BASE_URL}api/category/`, {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
+    console.log('Get all categories response.data', response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching categories:', error);
@@ -219,6 +248,39 @@ export const getTotalDividedByBudgetAmount = async (
       },
     );
     console.log('response.data', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error calculating total divided by budget amount:', error);
+    throw error;
+  }
+};
+
+export const getGoalProgress = async (userToken, goalId) => {
+  try {
+    const response = await axios.get(
+      `${BASE_URL}api/goal/${goalId}/progress/`,
+      {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      },
+    );
+    console.log('response.data', response.data);
+    return response.data;
+  } catch (error) {
+    console.error('Error calculating total divided by budget amount:', error);
+    throw error;
+  }
+};
+
+export const getGoalCategory = async userToken => {
+  try {
+    const response = await axios.get(`${BASE_URL}api/category/combined`, {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
+    console.log('getGoalCategory', response.data);
     return response.data;
   } catch (error) {
     console.error('Error calculating total divided by budget amount:', error);

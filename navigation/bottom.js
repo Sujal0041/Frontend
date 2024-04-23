@@ -1,5 +1,11 @@
 import React, {useState} from 'react';
-import {Text, Platform, View, TouchableOpacity} from 'react-native';
+import {
+  Text,
+  Platform,
+  View,
+  TouchableOpacity,
+  ImageComponent,
+} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {useNavigation} from '@react-navigation/native';
@@ -15,12 +21,16 @@ import {
 } from '../screens/Index';
 import Wallets from '../screens/Wallets';
 import AddWallet from '../screens/AddWallet';
-
 import Currency from '../MoreScreen/Currency';
 import AccountSettings from '../MoreScreen/AccountSettings';
 import Budget from '../MoreScreen/Budget';
-import AddBudget from '../MoreScreen/AddBudget';
 import BudgetDetail from '../MoreScreen/BudgetDetail';
+import ViewCategory from '../MoreScreen/ViewCategory';
+import AddCategory from '../MoreScreen/AddCategory';
+import CategoryIcon from '../MoreScreen/CategoryIcon';
+import ViewReminder from '../MoreScreen/ViewReminder';
+import AddReminder from '../MoreScreen/AddReminder';
+import GoalDetail from '../MoreScreen/GoalDetail';
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -46,6 +56,7 @@ const GoalsNav = () => {
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="Goals" component={Goals} />
       <Stack.Screen name="AddGoals" component={AddGoals} />
+      <Stack.Screen name="GoalDetail" component={GoalDetail} />
     </Stack.Navigator>
   );
 };
@@ -59,6 +70,12 @@ const MoreNav = () => {
       <Stack.Screen name="Currency" component={Currency} />
       <Stack.Screen name="Budget" component={Budget} />
       <Stack.Screen name="BudgetDetail" component={BudgetDetail} />
+      <Stack.Screen name="AddWallet" component={AddWallet} />
+      <Stack.Screen name="ViewCategory" component={ViewCategory} />
+      <Stack.Screen name="AddCategory" component={AddCategory} />
+      <Stack.Screen name="CategoryIcon" component={CategoryIcon} />
+      <Stack.Screen name="ViewReminder" component={ViewReminder} />
+      <Stack.Screen name="AddReminder" component={AddReminder} />
     </Stack.Navigator>
   );
 };

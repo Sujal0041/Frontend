@@ -14,6 +14,8 @@ import {Dropdown} from 'react-native-element-dropdown';
 import {useRoute} from '@react-navigation/native';
 import Wallets from './Wallets';
 import {useNavigation} from '@react-navigation/native';
+import {getAllCategories, getGoalCategory} from '../api/api';
+import {useAuth} from '../api/authContext';
 
 const ManageTransaction = ({modalVisible, setModalVisible}) => {
   const route = useRoute();
@@ -30,6 +32,9 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
   const [showWallets, setShowWallets] = useState(false);
   const [navigationKey, setNavigationKey] = useState(0);
   const [isFormValid, setIsFormValid] = useState(true);
+  const [allCategories, setAllCategories] = useState([]);
+  const [combinedCategories, setCombinedCategories] = useState([]);
+  const {userToken} = useAuth();
 
   const handleDateChange = (event, selectedDate) => {
     const currentDate = selectedDate || date;
@@ -53,6 +58,30 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
     }
   }, [route.params]);
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categories = await getAllCategories(userToken);
+        console.log('categoraskdnaslkdny', categories);
+        setAllCategories(categories);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+
+    const fetchCombinedCategories = async () => {
+      try {
+        const categories = await getGoalCategory(userToken);
+        console.log('categoraskdnaslkdny', categories);
+        setCombinedCategories(categories);
+      } catch (error) {
+        console.error('Error fetching categories:', error);
+      }
+    };
+    fetchCategories();
+    fetchCombinedCategories();
+  }, []);
+
   const handleWalletSelection = selectedWallet => {
     setWallet(selectedWallet);
     setShowWallets(false);
@@ -70,12 +99,11 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
       type: transactionType.toLowerCase(),
       category,
       wallet: wallet.id,
-      user: 6,
       date,
     };
     try {
       console.log(transactionData);
-      await addTransaction(transactionData);
+      await addTransaction(transactionData, userToken);
       setAmount('');
       setNotes('');
       setWallet('');
@@ -90,7 +118,10 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
   return (
     <Modal visible={modalVisible} animationType="slide">
       {showWallets ? (
-        <Wallets handleWalletSelection={handleWalletSelection} />
+        <Wallets
+          handleWalletSelection={handleWalletSelection}
+          setShowWallets={setShowWallets}
+        />
       ) : (
         <View style={styles.container}>
           <View style={styles.header}>
@@ -177,32 +208,55 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
 
           <View style={styles.dropdownContainer}>
             <Text style={styles.categoryText}>Category</Text>
-            <Dropdown
-              style={[
-                styles.dropdown,
-                isFocus && {borderColor: '#277ad0', borderWidth: 1}, // Change border color when focused
-              ]}
-              placeholderStyle={{color: '#8c8c8e'}} // Change placeholder text color
-              selectedTextStyle={{color: '#8c8c8e', fontWeight: 'bold'}} // Change selected option text color and font weight
-              iconStyle={{color: '#333333'}} // Change icon color
-              data={[
-                {label: 'Food', value: 'Food'},
-                {label: 'Shopping', value: 'Shopping'},
-                {label: 'Entertainment', value: 'Entertainment'},
-                {label: 'Transport', value: 'Transport'},
-                {label: 'Others', value: 'Others'},
-              ]}
-              labelField="label"
-              valueField="value"
-              placeholder={!isFocus ? 'Category' : '...'}
-              value={category}
-              onFocus={() => setIsFocus(true)}
-              onBlur={() => setIsFocus(false)}
-              onChange={item => {
-                setCategory(item.value);
-                setIsFocus(false);
-              }}
-            />
+            {transactionType === 'Income' ? (
+              <Dropdown
+                style={[
+                  styles.dropdown,
+                  isFocus && {borderColor: '#277ad0', borderWidth: 1}, // Change border color when focused
+                ]}
+                placeholderStyle={{color: '#8c8c8e'}} // Change placeholder text color
+                selectedTextStyle={{color: '#8c8c8e', fontWeight: 'bold'}} // Change selected option text color and font weight
+                iconStyle={{color: '#333333'}} // Change icon color
+                data={allCategories.map(category => ({
+                  label: category.category_name,
+                  value: category.id,
+                }))}
+                labelField="label"
+                valueField="value"
+                placeholder={!isFocus ? 'Category' : '...'}
+                value={category}
+                onFocus={() => setIsFocus(true)}
+                onBlur={() => setIsFocus(false)}
+                onChange={item => {
+                  setCategory(item.value);
+                  setIsFocus(false);
+                }}
+              />
+            ) : (
+              <Dropdown
+                style={[
+                  styles.dropdown,
+                  isFocus && {borderColor: '#277ad0', borderWidth: 1}, // Change border color when focused
+                ]}
+                placeholderStyle={{color: '#8c8c8e'}} // Change placeholder text color
+                selectedTextStyle={{color: '#8c8c8e', fontWeight: 'bold'}} // Change selected option text color and font weight
+                iconStyle={{color: '#333333'}} // Change icon color
+                data={combinedCategories.map(category => ({
+                  label: category.category_name,
+                  value: category.id,
+                }))}
+                labelField="label"
+                valueField="value"
+                placeholder={!isFocus ? 'Category' : '...'}
+                value={category}
+                onFocus={() => setIsFocus(true)}
+                onBlur={() => setIsFocus(false)}
+                onChange={item => {
+                  setCategory(item.value);
+                  setIsFocus(false);
+                }}
+              />
+            )}
           </View>
 
           <TouchableOpacity

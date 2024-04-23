@@ -7,11 +7,13 @@ import {
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
+  Alert,
 } from 'react-native';
 import api from '../api/api';
 import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 import {BASE_URL} from '../api/api';
+import LoginScreen from './LoginScreen';
 
 const RegisterScreen = () => {
   const [RegUsername, setRegUsername] = useState('');
@@ -22,10 +24,25 @@ const RegisterScreen = () => {
 
   //Backend
   const handleRegister = async () => {
+    const navigation = useNavigation();
     try {
+      if (!RegEmail.endsWith('@gmail.com')) {
+        Alert.alert('Invalid Email', 'Please enter a valid email.');
+        return;
+      }
+
+      if (RegPassword.length < 8) {
+        Alert.alert(
+          'Invalid Password',
+          'Password must contain at least 8 characters.',
+        );
+        return;
+      }
+
       console.log(
-        `Email: ${RegEmail}, Number: ${number},Password: ${RegPassword}`,
+        `Email: ${RegEmail}, Number: ${number}, Password: ${RegPassword}`,
       );
+
       const userData = {
         email: RegEmail,
         password: RegPassword,
@@ -34,18 +51,16 @@ const RegisterScreen = () => {
       const response = await axios.post(`${BASE_URL}api/register/`, userData);
 
       console.log('Registration successful:', response.data);
-      navigation.navigate('Login');
-      // Handle successful registration response here
+      navigation.navigate('LoginScreen');
     } catch (error) {
       console.error('Registration failed:', error);
-      // Handle registration failure here
     }
   };
 
   const navigation = useNavigation();
 
   const handleRegisterPress = () => {
-    navigation.navigate('Register');
+    navigation.navigate('login');
   };
 
   const togglePasswordVisibility = () => {
@@ -108,8 +123,8 @@ const RegisterScreen = () => {
         <TextInput
           onChangeText={text => setRegEmail(text)}
           keyboardType="email-address"
-          autoCapitalize="none" // Prevents automatic capitalization
-          autoCompleteType="email" // Helps autofill recognize it as an email field
+          autoCapitalize="none"
+          autoCompleteType="email"
           style={{
             margin: 10,
             padding: 13,
