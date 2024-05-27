@@ -18,10 +18,13 @@ import {
   ManageTransaction,
   AddGoals,
   More,
+  DeleteTransaction,
+  DeleteWallet,
+  EditWallet,
 } from '../screens/Index';
 import Wallets from '../screens/Wallets';
 import AddWallet from '../screens/AddWallet';
-import Currency from '../MoreScreen/Currency';
+
 import AccountSettings from '../MoreScreen/AccountSettings';
 import Budget from '../MoreScreen/Budget';
 import BudgetDetail from '../MoreScreen/BudgetDetail';
@@ -61,13 +64,34 @@ const GoalsNav = () => {
   );
 };
 
+const DelTransaction = () => {
+  const navigation = useNavigation();
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name="Transactions" component={Transactions} />
+      <Stack.Screen name="DeleteTransaction" component={DeleteTransaction} />
+    </Stack.Navigator>
+  );
+};
+
+const DelWallet = () => {
+  const navigation = useNavigation();
+  return (
+    <Stack.Navigator screenOptions={{headerShown: false}}>
+      <Stack.Screen name="HomeScreen" component={HomeScreen} />
+      <Stack.Screen name="DeleteWallet" component={DeleteWallet} />
+      <Stack.Screen name="EditWallet" component={EditWallet} />
+    </Stack.Navigator>
+  );
+};
+
 const MoreNav = () => {
   const navigation = useNavigation();
   return (
     <Stack.Navigator screenOptions={{headerShown: false}}>
       <Stack.Screen name="More" component={More} />
       <Stack.Screen name="AccountSettings" component={AccountSettings} />
-      <Stack.Screen name="Currency" component={Currency} />
+
       <Stack.Screen name="Budget" component={Budget} />
       <Stack.Screen name="BudgetDetail" component={BudgetDetail} />
       <Stack.Screen name="AddWallet" component={AddWallet} />
@@ -119,7 +143,7 @@ const MainTabNavigator = () => {
       <Tab.Navigator initialRouteName="Home" screenOptions={screenOptions}>
         <Tab.Screen
           name="Home"
-          component={HomeScreen}
+          component={DelWallet}
           options={({route}) => ({
             tabBarIcon: ({focused}) => (
               <View style={{alignItems: 'center', justifyContent: 'center'}}>
@@ -136,9 +160,10 @@ const MainTabNavigator = () => {
             ),
           })}
         />
+
         <Tab.Screen
-          name="Transactions"
-          component={Transactions}
+          name="TransactionTab"
+          component={DelTransaction}
           options={{
             tabBarIcon: ({focused}) => {
               return (

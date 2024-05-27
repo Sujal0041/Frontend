@@ -3,7 +3,7 @@ import {View, Text, StyleSheet, TouchableOpacity, FlatList} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {useNavigation, useFocusEffect} from '@react-navigation/native';
 import AddGoal from '../MoreScreen/AddGoals';
-import {getGoalList, getGoalProgress} from '../api/api'; // Import getGoalProgress
+import {getGoalList, getGoalProgress} from '../api/api';
 import {useAuth} from '../api/authContext';
 import * as Progress from 'react-native-progress';
 
@@ -11,7 +11,7 @@ const Goals = () => {
   const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
   const [goals, setGoals] = useState([]);
-  const [progressData, setProgressData] = useState([]); // State to store progress data
+  const [progressData, setProgressData] = useState({});
   const {userToken} = useAuth();
 
   useFocusEffect(
@@ -23,53 +23,93 @@ const Goals = () => {
   const fetchGoals = async () => {
     try {
       const goalsData = await getGoalList(userToken);
+      console.log(goalsData);
       setGoals(goalsData);
 
-      // Fetch progress data for each goal
       const progressPromises = goalsData.map(goal =>
-        getGoalProgress(userToken, goal.id),
+        getGoalProgress(userToken, goal.id).then(progress => ({
+          id: goal.id,
+          progress: progress.progress,
+        })),
       );
       const progressResults = await Promise.all(progressPromises);
-      setProgressData(progressResults);
+
+      const progressDataMap = progressResults.reduce((acc, progressItem) => {
+        acc[progressItem.id] = progressItem.progress;
+        return acc;
+      }, {});
+      setProgressData(progressDataMap);
     } catch (error) {
       console.error(error);
     }
   };
 
   const renderItem = ({item, index}) => {
-    console.log('progressData', progressData);
-    const progress = progressData[index] || 0; // Progress value for the current goal
+    const progress = progressData[item.id] || 0;
 
-    console.log('progress', progress.progress);
+    console.log('progress', index, progress);
 
-    // Determine the color of the progress bar based on the progress value
     let progressBarColor;
-    if (progress.progress >= 0.75) {
-      progressBarColor = 'green'; // Green if progress is 75% or more
-    } else if (progress.progress >= 0.3) {
-      progressBarColor = 'yellow'; // Yellow if progress is between 30% and 75%
+    if (progress >= 0.75) {
+      progressBarColor = 'green';
+    } else if (progress >= 0.3) {
+      progressBarColor = 'yellow';
     } else {
-      progressBarColor = 'red'; // Red otherwise
+      progressBarColor = 'red';
     }
 
     return (
-      <View style={styles.goalItem}>
+      <View
+        style={[
+          styles.goalItem,
+          item.status === 'completed' && styles.completedGoalItem,
+        ]}>
         <TouchableOpacity
-          onPress={() => navigation.navigate('GoalDetail', {goal: item})}>
+          onPress={() =>
+            navigation.navigate('GoalDetail', {
+              goal: item,
+              goalNumber: index + 1,
+              progress,
+            })
+          }>
           <View style={styles.topContainer}>
-            <Text style={styles.goalName}>{item.name}</Text>
+            <Text
+              style={[
+                styles.goalName,
+                item.status === 'completed' && styles.completedGoalName,
+              ]}>
+              {item.name}
+            </Text>
           </View>
           <View style={styles.progressBar}>
             <Progress.Bar
-              progress={progress.progress}
+              progress={progress}
               width={330}
-              color={progressBarColor} // Set the color dynamically
+              color={progressBarColor}
             />
           </View>
         </TouchableOpacity>
       </View>
     );
   };
+
+  const renderSection = (title, data, emptyMessage) => (
+    <>
+      <Text style={styles.sectionTitle}>{title}</Text>
+      {data.length === 0 ? (
+        <Text style={styles.emptyMessage}>{emptyMessage}</Text>
+      ) : (
+        <FlatList
+          data={data}
+          renderItem={renderItem}
+          keyExtractor={item => item.id.toString()}
+        />
+      )}
+    </>
+  );
+
+  const ongoingGoals = goals.filter(goal => goal.status === 'ongoing');
+  const completedGoals = goals.filter(goal => goal.status === 'completed');
 
   return (
     <View style={styles.container}>
@@ -84,11 +124,8 @@ const Goals = () => {
         setModalVisible={setModalVisible}
         fetchGoals={fetchGoals}
       />
-      <FlatList
-        data={goals}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
-      />
+      {renderSection('Ongoing Goals', ongoingGoals, 'No ongoing goals')}
+      {renderSection('Completed Goals', completedGoals, 'No completed goals')}
     </View>
   );
 };
@@ -102,10 +139,24 @@ const styles = StyleSheet.create({
     paddingBottom: 60,
   },
   text: {
-    fontSize: 20,
+    fontSize: 25,
     fontWeight: 'bold',
     color: 'white',
     textAlign: 'center',
+    position: 'relative',
+    bottom: 32,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: 'white',
+    marginVertical: 10,
+  },
+  emptyMessage: {
+    fontSize: 16,
+    color: 'gray',
+    textAlign: 'center',
+    marginVertical: 30,
   },
   goalName: {
     color: 'white',
@@ -119,6 +170,13 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
+  },
+  completedGoalItem: {
+    opacity: 0.5,
+  },
+  completedGoalName: {
+    textDecorationLine: 'line-through',
+    color: 'gray',
   },
   progressBar: {
     paddingBottom: 10,
@@ -136,7 +194,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     paddingVertical: 10,
-    // paddingHorizontal: 20,
     alignItems: 'center',
   },
 });

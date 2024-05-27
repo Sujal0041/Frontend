@@ -1,13 +1,6 @@
 import React, {useState, useEffect} from 'react';
-import {
-  View,
-  Text,
-  StyleSheet,
-  TouchableOpacity,
-  ScrollView,
-  FlatList,
-} from 'react-native';
-import {useNavigation} from '@react-navigation/native';
+import {View, Text, StyleSheet, TouchableOpacity, FlatList} from 'react-native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome6';
 import {getAllCategories} from '../api/api';
@@ -16,6 +9,7 @@ import {useAuth} from '../api/authContext';
 const ViewCategory = () => {
   const [categories, setCategories] = useState([]);
   const {userToken} = useAuth();
+  const navigation = useNavigation();
 
   const fetchCategories = async () => {
     try {
@@ -26,43 +20,45 @@ const ViewCategory = () => {
     }
   };
 
-  useEffect(() => {
-    fetchCategories();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchCategories();
+    }, []),
+  );
 
   const renderItem = ({item}) => (
-    <View
+    <TouchableOpacity
       style={styles.categoryItem}
       onPress={() => navigation.navigate('CategoryDetail', {category: item})}>
       <View style={styles.iconCircle}>
         <FontAwesomeIcon name={item.category_icon} size={22} color="white" />
       </View>
       <Text style={styles.categoryText}>{item.category_name}</Text>
-    </View>
+    </TouchableOpacity>
   );
 
-  const navigation = useNavigation();
   return (
     <View style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}>
-          <AntDesign name="arrowleft" size={24} color="white" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.plusButton}
-          onPress={() => navigation.navigate('AddCategory')}>
-          <AntDesign name="plus" size={24} color="white" />
-        </TouchableOpacity>
-      </View>
-      <ScrollView style={styles.scrollView}>
-        <FlatList
-          data={categories}
-          renderItem={renderItem}
-          keyExtractor={(item, index) => index.toString()}
-        />
-      </ScrollView>
+      <FlatList
+        data={categories}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => index.toString()}
+        ListHeaderComponent={() => (
+          <View style={styles.header}>
+            <TouchableOpacity
+              style={styles.backButton}
+              onPress={() => navigation.goBack()}>
+              <AntDesign name="arrowleft" size={24} color="white" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.plusButton}
+              onPress={() => navigation.navigate('AddCategory')}>
+              <AntDesign name="plus" size={24} color="white" />
+            </TouchableOpacity>
+          </View>
+        )}
+        contentContainerStyle={{paddingBottom: 60}}
+      />
     </View>
   );
 };
@@ -87,7 +83,7 @@ const styles = StyleSheet.create({
     padding: 10,
   },
   categoryItem: {
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: '#333',
     borderRadius: 10,
     padding: 20,
     marginBottom: 10,
@@ -99,7 +95,7 @@ const styles = StyleSheet.create({
     width: 45,
     height: 45,
     borderRadius: 100,
-    backgroundColor: '#333',
+    backgroundColor: '#277ad0',
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 10,
@@ -110,9 +106,6 @@ const styles = StyleSheet.create({
     color: 'white',
     textAlign: 'left',
     width: 270,
-  },
-  scrollView: {
-    flex: 1,
   },
 });
 

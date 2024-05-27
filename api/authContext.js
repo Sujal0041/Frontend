@@ -1,11 +1,12 @@
 import React, {createContext, useContext, useState, useEffect} from 'react';
 import base64 from 'base-64';
-import {logout} from './api';
+import {getCurrency, logout} from './api';
 
 const AuthContext = createContext();
 
 export const AuthProvider = ({children}) => {
   const [userToken, setUserToken] = useState(null);
+  const [currency, setCurrency] = useState([]);
 
   useEffect(() => {
     const isTokenExpired = () => {
@@ -34,8 +35,19 @@ export const AuthProvider = ({children}) => {
 
   const signIn = async token => {
     setUserToken(token);
+    fetchCurrencyCodes();
 
     console.log('Sign in Token:', token);
+  };
+
+  const fetchCurrencyCodes = async () => {
+    try {
+      const response = await getCurrency();
+      console.log(response);
+      setCurrency(response);
+    } catch (error) {
+      console.error('Error fetching currency:', error);
+    }
   };
 
   const signOut = () => {
@@ -45,7 +57,7 @@ export const AuthProvider = ({children}) => {
   };
 
   return (
-    <AuthContext.Provider value={{userToken, signIn, signOut}}>
+    <AuthContext.Provider value={{userToken, currency, signIn, signOut}}>
       {children}
     </AuthContext.Provider>
   );

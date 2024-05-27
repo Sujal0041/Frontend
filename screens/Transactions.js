@@ -2,17 +2,17 @@ import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
-  FlatList,
   StyleSheet,
-  SafeAreaView,
   TouchableOpacity,
   SectionList,
+  Alert,
 } from 'react-native';
 import {getAllTransactions, getAllWallets, getAllCategories} from '../api/api';
-import {useFocusEffect} from '@react-navigation/native';
+import {useFocusEffect, useNavigation} from '@react-navigation/native';
 import {useAuth} from '../api/authContext';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import reactNativeHTMLToPDF from 'react-native-html-to-pdf';
+import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome6';
 
 const Transactions = () => {
   const [transactions, setTransactions] = useState([]);
@@ -23,12 +23,13 @@ const Transactions = () => {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [wallets, setWallets] = useState([]);
   const [categories, setCategories] = useState([]);
+  const navigation = useNavigation();
 
   useEffect(() => {
     fetchTransactions();
     fetchWallets();
     fetchCategories();
-  }, [selectedMonthIndex, currentYear]); // Update transactions when month or year changes
+  }, [selectedMonthIndex, currentYear]);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -44,14 +45,12 @@ const Transactions = () => {
       setWallets(walletsData);
     } catch (error) {
       console.error('Error fetching wallets:', error);
-      // Handle error, e.g., show error message to user
     }
   };
 
   const fetchTransactions = async () => {
     try {
       const data = await getAllTransactions(userToken);
-
       setTransactions(
         data.filter(transaction => {
           const transactionDate = new Date(transaction.date);
@@ -69,7 +68,6 @@ const Transactions = () => {
   const fetchCategories = async () => {
     try {
       const categories = await getAllCategories(userToken);
-      console.log('category', categories);
       setCategories(categories);
     } catch (error) {
       console.error('Error fetching categories:', error);
@@ -94,35 +92,30 @@ const Transactions = () => {
     });
 
     const formatDate = date => {
-      const dateParts = date.split(', '); // Split the date string
-      const monthName = dateParts[0].split(' ')[0]; // Get the month name
-      const day = dateParts[0].split(' ')[1]; // Get the day
+      const dateParts = date.split(', ');
+      const monthName = dateParts[0].split(' ')[0];
+      const day = dateParts[0].split(' ')[1];
+      const year = dateParts[1];
 
-      const year = dateParts[1]; // Get the year
+      const monthNamesToNumber = {
+        January: '01',
+        February: '02',
+        March: '03',
+        April: '04',
+        May: '05',
+        June: '06',
+        July: '07',
+        August: '08',
+        September: '09',
+        October: '10',
+        November: '11',
+        December: '12',
+      };
 
-      // Convert the month name to its corresponding number
       const monthNumber = monthNamesToNumber[monthName];
-
-      // Format the date as "YYYY-MM-DD"
       const formattedDate = `${year}-${monthNumber}-${day}`;
 
-      // Extract the date components from the strings
       return formattedDate;
-    };
-
-    const monthNamesToNumber = {
-      January: '01',
-      February: '02',
-      March: '03',
-      April: '04',
-      May: '05',
-      June: '06',
-      July: '07',
-      August: '08',
-      September: '09',
-      October: '10',
-      November: '11',
-      December: '12',
     };
 
     const sortedDates = Object.keys(groupedTransactions).sort((a, b) => {
@@ -152,33 +145,63 @@ const Transactions = () => {
       minute: '2-digit',
     });
 
+    const getCategoryInfo = () => {
+      if (item.category) {
+        return {
+          categoryName: item.category.category_name,
+          categoryIcon: item.category.category_icon,
+        };
+      } else if (item.custom) {
+        return {
+          categoryName: item.custom.category_name,
+          categoryIcon: item.custom.category_icon,
+        };
+      } else if (item.goal) {
+        return {
+          categoryName: 'Goal',
+          categoryIcon: 'flag-checkered',
+        };
+      }
+      return {
+        categoryName: 'Unknown Category',
+        categoryIcon: 'question-circle',
+      };
+    };
+
+    const {categoryName, categoryIcon} = getCategoryInfo();
+
     return (
-      <View style={[styles.transactionItem, itemStyle]}>
-        <View>
-          {categories.find(category => category.id === item.category) ? (
-            <Text style={styles.category}>
-              {categories.find(category => category.id === item.category)
-                ?.category_name || 'Goals'}
+      <TouchableOpacity
+        style={[styles.transactionItem, itemStyle, {marginRight: 10}]}
+        onPress={() =>
+          navigation.navigate('DeleteTransaction', {transaction: item})
+        }>
+        <FontAwesomeIcon
+          name={categoryIcon}
+          size={22}
+          color="white"
+          style={styles.icon}
+        />
+        <View style={styles.transactionDetails}>
+          <View>
+            <Text style={styles.category}>{categoryName}</Text>
+            {wallets.find(wallet => wallet.id === item.wallet.id)?.name && (
+              <Text style={styles.category1}>
+                {wallets.find(wallet => wallet.id === item.wallet.id)?.name}
+              </Text>
+            )}
+          </View>
+          <View>
+            <Text style={{color: amountColor, fontSize: 16}}>
+              {wallets.find(wallet => wallet.id === item.wallet.id)?.currency}{' '}
+              {amountText}
             </Text>
-          ) : (
-            <Text style={styles.category}>Goals</Text>
-          )}
-          {wallets.find(wallet => wallet.id === item.wallet)?.name && (
-            <Text style={styles.category1}>
-              {wallets.find(wallet => wallet.id === item.wallet)?.name}
-            </Text>
-          )}
+            <Text style={styles.category1}>{formattedTime}</Text>
+          </View>
         </View>
-        <View>
-          <Text style={{color: amountColor, fontSize: 16}}>
-            NPR{item.currency} {amountText}
-          </Text>
-          <Text style={styles.category1}>{formattedTime}</Text>
-        </View>
-      </View>
+      </TouchableOpacity>
     );
   };
-
   const groupedTransactions = groupTransactionsByDate();
 
   const monthNames = [
@@ -277,20 +300,20 @@ const Transactions = () => {
           .join('')}
       </div>
     `,
-      fileName: `Transactions - ${Date.now()}`,
+      fileName: `Sujal Transactions - ${Date.now()}`,
       directory: 'Documents',
     };
     const file = await reactNativeHTMLToPDF.convert(options);
     console.log(file);
+
+    Alert.alert('Success', 'PDF file generated successfully');
   };
 
   return (
     <View style={styles.container}>
-      {/* PDF Icon */}
       <TouchableOpacity style={styles.pdfIconContainer} onPress={generatePDF}>
         <AntDesign name="pdffile1" size={30} color="white" />
       </TouchableOpacity>
-      {/* Month Selector */}
       <View style={styles.monthPicker}>
         <TouchableOpacity onPress={handlePreviousMonth}>
           <AntDesign name="left" size={24} color="white" />
@@ -304,7 +327,7 @@ const Transactions = () => {
       </View>
       <SectionList
         sections={groupedTransactions}
-        keyExtractor={(item, index) => item + index}
+        keyExtractor={(item, index) => item.id + index}
         renderItem={({item}) => renderTransactionItem({item})}
         renderSectionHeader={({section: {date}}) => (
           <Text style={styles.date}>{date}</Text>
@@ -325,14 +348,13 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 10,
     right: 10,
-    color: 'white',
+    zIndex: 1,
   },
   monthPicker: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
     marginBottom: 10,
-    color: 'white',
   },
   monthOption: {
     fontSize: 18,
@@ -352,12 +374,19 @@ const styles = StyleSheet.create({
   },
   transactionItem: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     alignItems: 'center',
     padding: 10,
     marginBottom: 5,
     borderRadius: 5,
-    backgroundColor: 'white',
+    backgroundColor: '#333136',
+  },
+  icon: {
+    marginRight: 10,
+  },
+  transactionDetails: {
+    flex: 1,
+    justifyContent: 'space-between',
+    flexDirection: 'row',
   },
   expense: {
     backgroundColor: '#333136',

@@ -16,8 +16,9 @@ const AddWallet = () => {
   const [walletName, setWalletName] = useState('');
   const [amount, setAmount] = useState('');
   const [walletType, setWalletType] = useState(null);
+  const [currency, setCurrency] = useState(null);
   const navigation = useNavigation();
-  const {userToken} = useAuth();
+  const {userToken, currency: currencyOptions} = useAuth();
 
   const handleSave = async () => {
     // Create walletData object to send to addWallet function
@@ -25,6 +26,7 @@ const AddWallet = () => {
       name: walletName,
       amount: parseFloat(amount), // Convert amount to a float (assuming amount is a number)
       type: walletType,
+      currency: currency || 'NPR',
     };
 
     try {
@@ -75,12 +77,28 @@ const AddWallet = () => {
             {label: 'Bank', value: 'Bank'},
             {label: 'Cash', value: 'Cash'},
           ]}
+          placeholderStyle={{color: 'white'}}
+          selectedTextStyle={{color: 'white'}}
           labelField="label"
           valueField="value"
           placeholder="Select wallet type"
-          placeholderTextColor="white"
           value={walletType}
           onChange={item => setWalletType(item.value)}
+        />
+        <Text style={styles.label}>Currency</Text>
+        <Dropdown
+          style={styles.dropdown}
+          search
+          searchPlaceholder="Search..."
+          data={currencyOptions.map(curr => ({label: curr, value: curr}))}
+          placeholderStyle={{color: 'white'}}
+          selectedTextStyle={{color: 'white'}}
+          labelField="label"
+          valueField="value"
+          placeholder="Select currency"
+          dropdownPosition="top"
+          value={currency}
+          onChange={item => setCurrency(item.value)}
         />
       </View>
 
@@ -134,8 +152,6 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingHorizontal: 10,
     justifyContent: 'center',
-    color: 'white',
-    placeholderTextColor: 'white',
   },
   addButton: {
     backgroundColor: 'green',

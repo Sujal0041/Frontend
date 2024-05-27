@@ -17,35 +17,13 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 const AddGoal = ({modalVisible, setModalVisible, fetchGoals}) => {
   const [amount, setAmount] = useState('');
   const [BName, setBName] = useState('');
-  const [category, setCategory] = useState('Food');
   const [showWallets, setShowWallets] = useState(false);
-  const [wallet, setWallet] = useState('');
-  const [isFocus, setIsFocus] = useState(false);
   const [isFormValid, setIsFormValid] = useState(true);
-  const [allCategories, setAllCategories] = useState([]);
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const {userToken} = useAuth();
-
-  const handleWalletSelection = selectedWallet => {
-    setWallet(selectedWallet);
-    setShowWallets(false);
-  };
-
-  useEffect(() => {
-    const fetchCategories = async () => {
-      try {
-        const categories = await getAllCategories(userToken);
-        console.log('category', categories);
-        setAllCategories(categories);
-      } catch (error) {
-        console.error('Error fetching categories:', error);
-      }
-    };
-    fetchCategories();
-  }, []);
 
   const handleEndDateChange = (event, selectedDate) => {
     setEndDate(selectedDate);
@@ -63,7 +41,6 @@ const AddGoal = ({modalVisible, setModalVisible, fetchGoals}) => {
         {
           amount: parseFloat(amount),
           name: BName,
-          wallet: wallet.id,
           start_date: startDate.toISOString().split('T')[0],
           end_date: endDate.toISOString().split('T')[0],
           status: 'ongoing',
@@ -72,7 +49,6 @@ const AddGoal = ({modalVisible, setModalVisible, fetchGoals}) => {
       );
       setAmount('');
       setBName('');
-      setWallet('');
       setStartDate(new Date());
       setEndDate(new Date());
       setModalVisible(false);
@@ -124,7 +100,7 @@ const AddGoal = ({modalVisible, setModalVisible, fetchGoals}) => {
               />
             </View>
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={[
                 styles.walletButton,
                 {
@@ -159,7 +135,7 @@ const AddGoal = ({modalVisible, setModalVisible, fetchGoals}) => {
                   {wallet.name || 'Select Wallet'}
                 </Text>
               </View>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <View style={styles.dateContainer}>
               <Text style={styles.dateText}>Start Date</Text>
 

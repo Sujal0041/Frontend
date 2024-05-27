@@ -152,7 +152,7 @@ const AddBudget = ({modalVisible, setModalVisible, fetchBudgets}) => {
               />
             </View>
 
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={[
                 styles.walletButton,
                 {
@@ -187,7 +187,7 @@ const AddBudget = ({modalVisible, setModalVisible, fetchBudgets}) => {
                   {wallet.name || 'Select Wallet'}
                 </Text>
               </View>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
             <View style={styles.dateContainer}>
               <Text style={styles.dateText}>Start Date</Text>
 

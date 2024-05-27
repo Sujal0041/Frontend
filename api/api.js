@@ -5,7 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 //   baseURL: ' http://192.168.1.65:8000/',
 // });
 
-export const BASE_URL = 'http://192.168.1.65:8000/';
+export const BASE_URL = 'http://192.168.1.101:8000/';
 
 const storeToken = async token => {
   try {
@@ -195,9 +195,13 @@ export const getBudgetList = async () => {
   }
 };
 
-export const getGoalList = async () => {
+export const getGoalList = async userToken => {
   try {
-    const response = await axios.get(`${BASE_URL}api/goal-list/`);
+    const response = await axios.get(`${BASE_URL}api/goal-list/`, {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error('Error fetching goal list:', error);
@@ -213,7 +217,6 @@ export const getAllCategories = async userToken => {
         Authorization: `Bearer ${userToken}`,
       },
     });
-    console.log('Get all categories response.data', response.data);
     return response.data;
   } catch (error) {
     console.error('Error fetching categories:', error);
@@ -222,9 +225,18 @@ export const getAllCategories = async userToken => {
 };
 
 // Function to create a new category
-export const addCategory = async categoryData => {
+export const addCategory = async (categoryData, userToken) => {
   try {
-    const response = await axios.post(`${BASE_URL}api/category/`, categoryData);
+    console.log(categoryData);
+    const response = await axios.post(
+      `${BASE_URL}api/category/create/`,
+      categoryData,
+      {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      },
+    );
     return response.data;
   } catch (error) {
     console.error('Error creating a category:', error);
@@ -285,5 +297,180 @@ export const getGoalCategory = async userToken => {
   } catch (error) {
     console.error('Error calculating total divided by budget amount:', error);
     throw error;
+  }
+};
+
+export const updateTransaction = async (transactionId, transactionData) => {
+  try {
+    const userToken = await retrieveToken();
+    const response = await axios.patch(
+      `${BASE_URL}api/transaction/${transactionId}/`,
+      transactionData,
+      {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error updating transaction:', error);
+    throw error;
+  }
+};
+
+export const deleteTransactions = async (transactionId, userToken) => {
+  try {
+    const response = await axios.delete(
+      `${BASE_URL}api/transaction/${transactionId}/`,
+      {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting transaction:', error);
+    throw error;
+  }
+};
+
+export const deleteWallet = async (walletId, userToken) => {
+  try {
+    const response = await axios.delete(
+      `${BASE_URL}api/wallet/delete/${walletId}/`,
+      {
+        headers: {
+          Authorization: `Bearer ${userToken}`,
+        },
+      },
+    );
+    return response.data;
+  } catch (error) {
+    console.error('Error deleting wallet:', error);
+    throw error;
+  }
+};
+
+export const getCurrency = async () => {
+  try {
+    const response = await axios.get(
+      'https://api.exchangerate-api.com/v4/latest/USD',
+    );
+    const currencyCodes = Object.keys(response.data.rates);
+    console.log('CODES', currencyCodes);
+
+    return currencyCodes;
+  } catch (error) {
+    console.error('Error fetching currency:', error);
+    throw error;
+  }
+};
+
+export const getExchangeRate = async (currency, toCurrency) => {
+  try {
+    const response = await fetch(
+      `https://api.exchangerate-api.com/v4/latest/${currency}`,
+    );
+    const data = await response.json();
+    if (data && data.rates && data.rates[toCurrency]) {
+      console.log(data.rates[toCurrency]);
+      return data.rates[toCurrency];
+    } else {
+      throw new Error('Exchange rate not found');
+    }
+  } catch (error) {
+    console.error('Error fetching currency:', error);
+    throw error;
+  }
+};
+
+export const updatePassword = async (userToken, passwordData) => {
+  try {
+    const response = await axios.patch(
+      `${BASE_URL}api/update_password/`,
+      {
+        oldPassword: passwordData.oldPassword,
+        newPassword: passwordData.newPassword,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
+        },
+      },
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error updating password:', error);
+    throw 'Error updating password';
+  }
+};
+
+export const getCategory = async userToken => {
+  try {
+    const response = await axios.get(`${BASE_URL}api/categories/`, {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error getting categories:', error);
+    throw 'Error getting categories';
+  }
+};
+
+export const getCustomCategory = async userToken => {
+  try {
+    const response = await axios.get(`${BASE_URL}api/category/custom/`, {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error getting custom category:', error);
+    throw 'Error getting custom category';
+  }
+};
+
+export const getGoalCategoryRemoved = async userToken => {
+  try {
+    const response = await axios.get(`${BASE_URL}api/category/goal/`, {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
+
+    return response.data;
+  } catch (error) {
+    console.error('Error getting custom category:', error);
+    throw 'Error getting custom category';
+  }
+};
+
+export const updateWallet = async (id, walletData, userToken) => {
+  try {
+    console.log('Walleeeee', walletData);
+    const response = await axios.patch(
+      `${BASE_URL}api/wallets/${id}/update/`,
+      walletData,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${userToken}`,
+        },
+      },
+    );
+
+    return response.data;
+  } catch (error) {
+    console.error('Error updating wallet:', error);
+    throw 'Error updating wallet';
   }
 };

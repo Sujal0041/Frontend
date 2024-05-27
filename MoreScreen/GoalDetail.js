@@ -1,11 +1,27 @@
-import React, {useState, useEffect} from 'react';
-import {View, Text, StyleSheet, TouchableOpacity, FlatList} from 'react-native';
+import React from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {useNavigation} from '@react-navigation/native';
+import * as Progress from 'react-native-progress';
 
 const GoalDetail = ({route}) => {
-  const goal = route.params.goal;
+  const {goal, goalNumber, progress} = route.params;
   const navigation = useNavigation();
+
+  let progressBarColor;
+  if (progress >= 0.75) {
+    progressBarColor = 'green';
+  } else if (progress >= 0.3) {
+    progressBarColor = 'yellow';
+  } else {
+    progressBarColor = 'red';
+  }
 
   return (
     <View style={styles.container}>
@@ -14,17 +30,44 @@ const GoalDetail = ({route}) => {
         onPress={() => navigation.goBack()}>
         <AntDesign name="arrowleft" size={24} color="white" />
       </TouchableOpacity>
-      <Text style={styles.text}>{goal.name}</Text>
-      <Text style={styles.text}>Used: {goal.amount * goal.progress} </Text>
-      <Text style={styles.text}>
-        Used Percentage: {Math.round(goal.progress * 100)}%
-      </Text>
-      <Text style={styles.text}>
-        Remaining: {goal.amount - goal.amount * goal.progress}{' '}
-      </Text>
-      <Text style={styles.text}>
-        Remaining Percentage: {Math.round((1 - goal.progress) * 100)}%
-      </Text>
+      <ScrollView contentContainerStyle={styles.scrollViewContent}>
+        <Text style={styles.goalName}>{goal.name}</Text>
+        <View style={styles.detailContainer}>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailTitle}>Total Amount to Save:</Text>
+            <Text style={styles.detailValue}>{goal.amount}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailTitle}>Saved:</Text>
+            <Text style={styles.detailValue}>{goal.amount * progress}</Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailTitle}>Saved Percentage:</Text>
+            <Text style={styles.detailValue}>
+              {Math.round(progress * 100)}%
+            </Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailTitle}>Remaining:</Text>
+            <Text style={styles.detailValue}>
+              {goal.amount - goal.amount * progress}
+            </Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailTitle}>Remaining Percentage:</Text>
+            <Text style={styles.detailValue}>
+              {Math.round((1 - progress) * 100)}%
+            </Text>
+          </View>
+          <View style={styles.progressBar}>
+            <Progress.Bar
+              progress={progress}
+              width={330}
+              color={progressBarColor}
+            />
+          </View>
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -32,20 +75,58 @@ const GoalDetail = ({route}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
     backgroundColor: '#1e1e1e',
-  },
-  text: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: 'white',
+    paddingTop: 20,
+    paddingHorizontal: 20,
   },
   backButton: {
     position: 'absolute',
-    top: 12,
-    left: 12,
+    top: 20,
+    left: 20,
     zIndex: 1,
+  },
+  scrollViewContent: {
+    flexGrow: 1,
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  goalName: {
+    fontSize: 30,
+    color: 'white',
+    fontWeight: 'bold',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  detailContainer: {
+    width: '100%',
+    padding: 20,
+    backgroundColor: '#333136',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.8,
+    shadowRadius: 2,
+    elevation: 5,
+  },
+  detailRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
+  },
+  detailTitle: {
+    fontSize: 18,
+    color: 'white',
+    fontWeight: 'bold',
+  },
+  detailValue: {
+    fontSize: 18,
+    color: 'white',
+  },
+  progressBar: {
+    marginTop: 20,
   },
 });
 

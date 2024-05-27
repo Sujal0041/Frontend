@@ -1,11 +1,32 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {View, Text, StyleSheet, TouchableOpacity, Button} from 'react-native';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {useNavigation} from '@react-navigation/native';
+import messaging from '@react-native-firebase/messaging';
 
 const ViewReminder = () => {
   const navigation = useNavigation();
 
+  async function requestUserPermission() {
+    const authStatus = await messaging().requestPermission();
+    const enabled =
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
+
+    if (enabled) {
+      console.log('Authorization status:', authStatus);
+    }
+  }
+
+  const getToken = async () => {
+    requestUserPermission();
+    const fcmToken = await messaging().getToken();
+    console.log('fcmToken', fcmToken);
+  };
+
+  useEffect(() => {
+    getToken();
+  });
   return (
     <View style={styles.container}>
       <TouchableOpacity

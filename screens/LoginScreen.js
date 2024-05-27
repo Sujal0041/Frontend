@@ -119,7 +119,6 @@ const LoginScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Modal for displaying error */}
       <Modal
         animationType="fade"
         transparent={true}

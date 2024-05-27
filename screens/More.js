@@ -31,12 +31,6 @@ const More = () => {
           <AntDesign name="user" size={24} color="#fff" style={styles.icon} />
           <Text style={styles.text}>Profile</Text>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.button, styles.button2]}
-          onPress={() => navigation.navigate('Currency')}>
-          <Text style={styles.text}>Currency</Text>
-        </TouchableOpacity>
       </View>
 
       <View style={[styles.row, {marginTop: 20}]}>

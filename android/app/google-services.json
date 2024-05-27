@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "855583872423",
+    "project_id": "firebass-push-notification",
+    "storage_bucket": "firebass-push-notification.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:855583872423:android:01fb5a634fa5891564d282",
+        "android_client_info": {
+          "package_name": "com.learn"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC-kXVHiFYixg_CGeQ4j5Eo63AsAPM5Imw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

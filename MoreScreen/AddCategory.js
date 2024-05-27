@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
@@ -10,16 +10,27 @@ import {
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import {useNavigation, useRoute} from '@react-navigation/native';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome6';
+import axios from 'axios';
+import {BASE_URL, addCategory} from '../api/api';
+import {useAuth} from '../api/authContext';
 
 const AddCategory = () => {
   const navigation = useNavigation();
   const [categoryName, setCategoryName] = useState('');
-  // const [categoryIcons, setCategoryIcons] = useState('shoppingcart');
+  const [categoryIcons, setCategoryIcons] = useState('shoppingcart');
+  const {userToken} = useAuth();
 
-  const handleSaveCategory = () => {
-    // Handle saving the category name
-    console.log('Category Name:', categoryName);
-    // Reset the text input
+  const handleSaveCategory = async () => {
+    try {
+      const response = await addCategory(
+        {category_name: categoryName, category_icon: categoryIcons},
+        userToken,
+      );
+      console.log(response);
+      navigation.navigate('ViewCategory');
+    } catch (error) {
+      console.log(error);
+    }
     setCategoryName('');
   };
 
@@ -27,6 +38,12 @@ const AddCategory = () => {
 
   const {selectedIcon = null} = route.params || {};
   console.log(selectedIcon);
+
+  useEffect(() => {
+    if (selectedIcon) {
+      setCategoryIcons(selectedIcon);
+    }
+  }, [selectedIcon]);
 
   return (
     <View style={styles.container}>
@@ -36,9 +53,9 @@ const AddCategory = () => {
         onPress={() => navigation.goBack()}>
         <AntDesign name="arrowleft" size={24} color="white" />
       </TouchableOpacity>
-      <TouchableOpacity style={styles.plusButton} onPress={handleSaveCategory}>
+      {/* <TouchableOpacity style={styles.plusButton} onPress={handleSaveCategory}>
         <AntDesign name="check" size={24} color="white" />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
 
       <View style={styles.inputContainer}>
         <TouchableOpacity
@@ -73,7 +90,9 @@ const AddCategory = () => {
         style={[
           styles.addButton,
           {backgroundColor: '#8c8c8e'}, // Background color
-        ]}>
+        ]}
+        onPress={handleSaveCategory} // Set onPress handler here
+      >
         <Text
           style={[
             styles.addButtonText,

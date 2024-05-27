@@ -14,7 +14,13 @@ import {Dropdown} from 'react-native-element-dropdown';
 import {useRoute} from '@react-navigation/native';
 import Wallets from './Wallets';
 import {useNavigation} from '@react-navigation/native';
-import {getAllCategories, getGoalCategory} from '../api/api';
+import {
+  getGoalCategory,
+  getCategory,
+  getCustomCategory,
+  getGoalCategoryRemoved,
+} from '../api/api';
+w;
 import {useAuth} from '../api/authContext';
 
 const ManageTransaction = ({modalVisible, setModalVisible}) => {
@@ -23,7 +29,7 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
   const navigation = useNavigation();
   const [notes, setNotes] = useState('');
   const [transactionType, setTransactionType] = useState('Income');
-  const [category, setCategory] = useState('Food');
+  const [category, setCategory] = useState('');
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -33,6 +39,8 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
   const [navigationKey, setNavigationKey] = useState(0);
   const [isFormValid, setIsFormValid] = useState(true);
   const [allCategories, setAllCategories] = useState([]);
+  const [allCustom, setAllCustom] = useState([]);
+  const [allGoals, setAllGoals] = useState([]);
   const [combinedCategories, setCombinedCategories] = useState([]);
   const {userToken} = useAuth();
 
@@ -61,26 +69,66 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const categories = await getAllCategories(userToken);
-        console.log('categoraskdnaslkdny', categories);
-        setAllCategories(categories);
+        const categories = await getCategory(userToken);
+        fetchCustom(categories);
       } catch (error) {
         console.error('Error fetching categories:', error);
       }
     };
 
-    const fetchCombinedCategories = async () => {
+    const fetchCustom = async categories => {
       try {
-        const categories = await getGoalCategory(userToken);
-        console.log('categoraskdnaslkdny', categories);
-        setCombinedCategories(categories);
+        const custom = await getCustomCategory(userToken);
+        var combined = [...categories, ...custom];
+        setAllCategories(combined);
+        setAllCustom(custom);
       } catch (error) {
-        console.error('Error fetching categories:', error);
+        console.error('Error fetching custom categories:', error);
       }
     };
-    fetchCategories();
-    fetchCombinedCategories();
-  }, []);
+
+    const fetchGoals = async () => {
+      try {
+        const categories = await getGoalCategoryRemoved(userToken);
+        console.log('goals', categories);
+        setAllGoals(categories);
+      } catch (error) {
+        console.error('Error fetching goal categories:', error);
+      }
+    };
+
+    if (modalVisible) {
+      fetchCategories();
+      fetchGoals();
+    }
+  }, [modalVisible]);
+
+  useEffect(() => {
+    var combined = [...allCategories, ...allCustom];
+    console.log('jaibjkdsb');
+    if (transactionType === 'Expense') {
+      const mappedGoals = allGoals.map(goal => ({
+        category_name: goal.name,
+        id: goal.id,
+      }));
+      // Merge the mapped goals with combined categories
+      combined.push(...mappedGoals);
+    }
+
+    // Use a Map to ensure unique categories based on a composite key
+    const categoryMap = new Map();
+
+    combined.forEach(cat => {
+      // Create a composite key based on id and category_name
+      const compositeKey = `${cat.id}-${cat.category_name}`;
+      if (!categoryMap.has(compositeKey)) {
+        categoryMap.set(compositeKey, cat);
+      }
+    });
+
+    // Convert the Map values back to an array
+    setCombinedCategories(Array.from(categoryMap.values()));
+  }, [transactionType, allCategories, allCustom, allGoals]);
 
   const handleWalletSelection = selectedWallet => {
     setWallet(selectedWallet);
@@ -93,16 +141,47 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
       return;
     }
 
+    let transactionCategory = {
+      category: null,
+      custom: null,
+      goal: null,
+    };
+
+    const selectedCategory = combinedCategories.find(
+      item => item.id === category,
+    );
+
+    if (selectedCategory) {
+      if (
+        allCategories.some(cat => cat.id === category) &&
+        !allCustom.some(cat => cat.id === category) &&
+        !allGoals.some(cat => cat.id === category)
+      ) {
+        transactionCategory.category = category;
+      } else if (
+        allCustom.some(cat => cat.id === category) &&
+        !allGoals.some(cat => cat.id === category)
+      ) {
+        transactionCategory.custom = category;
+      } else if (
+        allGoals.some(cat => cat.id === category) &&
+        !allCategories.some(cat => cat.id === category) &&
+        !allCustom.some(cat => cat.id === category)
+      ) {
+        transactionCategory.goal = category;
+      }
+    }
+
     const transactionData = {
       amount: parseFloat(amount),
       notes: notes.trim(),
       type: transactionType.toLowerCase(),
-      category,
       wallet: wallet.id,
       date,
+      ...transactionCategory,
     };
+
     try {
-      console.log(transactionData);
       await addTransaction(transactionData, userToken);
       setAmount('');
       setNotes('');
@@ -426,7 +505,7 @@ const styles = StyleSheet.create({
   inputAmount: {
     flex: 1,
     fontSize: 20,
-    color: 'black', // Default text color
+    color: 'black',
   },
   addButton: {
     backgroundColor: 'green',
@@ -442,7 +521,7 @@ const styles = StyleSheet.create({
   dateContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between', // Align items evenly in the row
+    justifyContent: 'space-between',
     marginBottom: 10,
   },
   dateText: {
@@ -452,7 +531,7 @@ const styles = StyleSheet.create({
   },
   datePickerText: {
     fontSize: 16,
-    color: 'white', // Color of the chosen date
+    color: 'white',
   },
   walletButton: {
     height: 40,
@@ -498,10 +577,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     textAlign: 'center',
-    color: '#fffefe', // Default text color
+    color: '#fffefe',
   },
   selectedButtonText: {
-    color: 'black', // Text color when selected
+    color: 'black',
   },
   warningModal: {
     backgroundColor: 'rgba(0, 0, 0, 0.7)',

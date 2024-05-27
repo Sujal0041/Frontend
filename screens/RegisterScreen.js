@@ -21,47 +21,60 @@ const RegisterScreen = () => {
   const [number, setNumber] = useState('');
   const [RegPassword, setRegPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
+  const navigation = useNavigation();
 
   //Backend
   const handleRegister = async () => {
-    const navigation = useNavigation();
-    try {
-      if (!RegEmail.endsWith('@gmail.com')) {
-        Alert.alert('Invalid Email', 'Please enter a valid email.');
-        return;
-      }
+    // if (!RegEmail.endsWith('@gmail.com')) {
+    //   Alert.alert('Invalid Email', 'Please enter a valid email.');
+    //   return;
+    // }
 
-      if (RegPassword.length < 8) {
-        Alert.alert(
-          'Invalid Password',
-          'Password must contain at least 8 characters.',
-        );
-        return;
-      }
-
-      console.log(
-        `Email: ${RegEmail}, Number: ${number}, Password: ${RegPassword}`,
+    if (RegPassword.length < 8) {
+      Alert.alert(
+        'Invalid Password',
+        'Password must contain at least 8 characters.',
       );
+      return;
+    }
 
+    if (number.length < 10) {
+      Alert.alert('Invalid Phone Number', 'Please enter a valid phone number.');
+      return;
+    }
+
+    if (RegUsername.length < 3) {
+      Alert.alert(
+        'Invalid Username',
+        'Username must contain at least 3 characters.',
+      );
+      return;
+    }
+    try {
+      console.log(
+        `Email: ${RegEmail}, Number: ${number},Password: ${RegPassword}`,
+      );
       const userData = {
         email: RegEmail,
         password: RegPassword,
+        name: RegUsername,
+        phone: number,
       };
 
       const response = await axios.post(`${BASE_URL}api/register/`, userData);
 
       console.log('Registration successful:', response.data);
-      navigation.navigate('LoginScreen');
+      navigation.navigate('Login');
+      // Handle successful registration response here
     } catch (error) {
       console.error('Registration failed:', error);
+      // Handle registration failure here
     }
   };
 
-  const navigation = useNavigation();
-
-  const handleRegisterPress = () => {
-    navigation.navigate('login');
-  };
+  // const handleRegisterPress = () => {
+  //   navigation.navigate('login');
+  // };
 
   const togglePasswordVisibility = () => {
     setIsPasswordVisible(!isPasswordVisible);

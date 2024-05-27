@@ -42,11 +42,11 @@ const Wallets = ({handleWalletSelection, setShowWallets}) => {
         onPress={() => setShowWallets(false)}>
         <AntDesign name="arrowleft" size={24} color="white" />
       </TouchableOpacity>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         style={styles.plusButton}
         onPress={() => navigation.navigate('AddWallet')}>
         <AntDesign name="plus" size={24} color="white" />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
       <View style={styles.header}>
         <Text style={styles.title}>Wallets</Text>
       </View>

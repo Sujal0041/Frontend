@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState, useCallback} from 'react';
 import {
   View,
   Text,
@@ -6,6 +6,7 @@ import {
   BackHandler,
   Alert,
   ScrollView,
+  TouchableOpacity,
 } from 'react-native';
 import {useFocusEffect} from '@react-navigation/native';
 import {getAllWallets, getAllTransactions} from '../api/api';
@@ -13,44 +14,48 @@ import {useAuth} from '../api/authContext';
 import FontAwesomeIcon from 'react-native-vector-icons/FontAwesome6';
 import AntDesignIcon from 'react-native-vector-icons/AntDesign';
 import {BarChart} from 'react-native-gifted-charts';
+import {useNavigation} from '@react-navigation/native';
 
 const HomeScreen = () => {
   const [wallets, setWallets] = useState([]);
   const [transactions, setTransactions] = useState([]);
-  const [startMonth, setStartMonth] = useState(new Date().getMonth() + 1);
-  const [startYear, setStartYear] = useState(new Date().getFullYear());
   const {userToken} = useAuth();
+  const navigation = useNavigation();
 
   useEffect(() => {
     fetchWallets();
     fetchTransactions();
-
-    const handleBackPress = () => {
-      Alert.alert('Exit App', 'Are you sure you want to exit?', [
-        {
-          text: 'Cancel',
-          onPress: () => null,
-          style: 'cancel',
-        },
-        {
-          text: 'Exit',
-          onPress: () => {
-            BackHandler.exitApp();
-          },
-        },
-      ]);
-      return true;
-    };
-
-    BackHandler.addEventListener('hardwareBackPress', handleBackPress);
-
-    return () => {
-      BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
-    };
   }, []);
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
+      const handleBackPress = () => {
+        Alert.alert('Exit App', 'Are you sure you want to exit?', [
+          {
+            text: 'Cancel',
+            onPress: () => null,
+            style: 'cancel',
+          },
+          {
+            text: 'Exit',
+            onPress: () => {
+              BackHandler.exitApp();
+            },
+          },
+        ]);
+        return true;
+      };
+
+      BackHandler.addEventListener('hardwareBackPress', handleBackPress);
+
+      return () => {
+        BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
+      };
+    }, []),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
       fetchWallets();
       fetchTransactions();
     }, []),
@@ -85,7 +90,11 @@ const HomeScreen = () => {
 
   // Calculate the maximum value for the y-axis, rounded up to the nearest 1000
   const maxYAxisValue =
-    Math.ceil(Math.max(maxIncome, maxExpense) / 5000) * 5000;
+    Math.ceil(Math.max(maxIncome, maxExpense) / 20000) * 20000;
+
+  const formatYAxisLabel = value => {
+    return `${value / 1000}k`;
+  };
 
   const getBarChartData = () => {
     const monthlyData = {};
@@ -120,10 +129,7 @@ const HomeScreen = () => {
     // Convert sorted keys into sorted monthlyData object
     const sortedMonthlyData = {};
     sortedKeys.forEach(key => {
-      console.log(key);
       sortedMonthlyData[key] = monthlyData[key];
-      console.log(sortedMonthlyData);
-      console.log(monthlyData);
     });
 
     // Convert monthlyData into barData format
@@ -131,7 +137,6 @@ const HomeScreen = () => {
 
     // Iterate through each month and push income and expense data alternately
     Object.keys(sortedMonthlyData).forEach(key => {
-      console.log(key);
       barData.push({
         value: sortedMonthlyData[key].income,
         label: sortedMonthlyData[key].label, // Use month name as label
@@ -139,15 +144,37 @@ const HomeScreen = () => {
         labelWidth: 50,
         labelTextStyle: {color: 'gray'},
         frontColor: '#177AD5', // Income color
+        onPress: () =>
+          showAlert(
+            sortedMonthlyData[key].label,
+            sortedMonthlyData[key].income,
+            sortedMonthlyData[key].expense,
+          ),
       });
 
       barData.push({
         value: sortedMonthlyData[key].expense,
         frontColor: '#ED6665', // Expense color
+        onPress: () =>
+          showAlert(
+            sortedMonthlyData[key].label,
+            sortedMonthlyData[key].income,
+            sortedMonthlyData[key].expense,
+          ),
       });
     });
 
     return barData;
+  };
+
+  const showAlert = (month, income, expense) => {
+    Alert.alert(
+      `${month} Summary`,
+      `Total Income: Rs ${income.toFixed(
+        2,
+      )}\nTotal Expense: Rs ${expense.toFixed(2)}`,
+      [{text: 'OK'}],
+    );
   };
 
   const renderTitle = () => {
@@ -169,7 +196,6 @@ const HomeScreen = () => {
           style={{
             flex: 1,
             flexDirection: 'row',
-            // justifyContent: 'center',
             marginTop: 24,
             marginLeft: 110,
           }}>
@@ -188,7 +214,6 @@ const HomeScreen = () => {
                 width: 60,
                 height: 18,
                 color: 'white',
-                // marginRight: 400,
               }}>
               Income
             </Text>
@@ -219,28 +244,27 @@ const HomeScreen = () => {
 
   return (
     <ScrollView style={styles.container}>
-      <View style={styles.container}>
-        <View style={styles.dashboard}>
+      <View style={styles.dashboard}>
+        <View style={styles.dashboardInner}>
           <Text style={styles.text}>Dashboard</Text>
-          <View
-            style={{
-              backgroundColor: '#333340',
-              paddingBottom: 10,
-              borderRadius: 10,
-            }}>
+          <View style={styles.chartContainer}>
             {renderTitle()}
-            <BarChart
-              data={getBarChartData()}
-              barWidth={10}
-              spacing={20}
-              roundedTop
-              roundedBottom
-              hideRules
-              xAxisThickness={0}
-              yAxisThickness={0}
-              yAxisTextStyle={{color: 'white'}}
-              maxValue={maxYAxisValue}
-            />
+            <ScrollView horizontal>
+              <BarChart
+                data={getBarChartData()}
+                barWidth={15}
+                spacing={30}
+                roundedTop
+                roundedBottom
+                hideRules
+                xAxisThickness={0}
+                yAxisThickness={0}
+                yAxisTextStyle={{color: 'white'}}
+                maxValue={maxYAxisValue}
+                yAxisLabelRenderer={formatYAxisLabel}
+                yAxisInterval={1000} // This sets the interval to 1000
+              />
+            </ScrollView>
           </View>
         </View>
       </View>
@@ -252,26 +276,24 @@ const HomeScreen = () => {
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <Text style={[styles.text3]}>Income</Text>
             <Text style={[styles.text3, {color: '#28a745'}]}>
-              Rs{' '}
+              {' '}
               {transactions.reduce((acc, curr) => {
                 return curr.type === 'income'
                   ? acc + parseFloat(curr.amount)
                   : acc;
               }, 0)}{' '}
-              NPR
             </Text>
           </View>
 
           <View style={{flexDirection: 'row', justifyContent: 'space-between'}}>
             <Text style={[styles.text3]}>Expense</Text>
             <Text style={[styles.text3, {color: '#EC4646'}]}>
-              Rs{' '}
+              {' '}
               {transactions.reduce((acc, curr) => {
                 return curr.type === 'expense'
                   ? acc + parseFloat(curr.amount)
                   : acc;
               }, 0)}{' '}
-              NPR
             </Text>
           </View>
 
@@ -284,15 +306,23 @@ const HomeScreen = () => {
             <Text
               style={[
                 styles.text3,
-                {color: '#28a745'}, // Green color for positive total
+                {
+                  color:
+                    transactions.reduce((acc, curr) => {
+                      return curr.type === 'income'
+                        ? acc + parseFloat(curr.amount)
+                        : acc - parseFloat(curr.amount); // Subtract expense from income
+                    }, 0) >= 0
+                      ? '#28a745'
+                      : '#EC4646',
+                }, // Green for positive, Red for negative
               ]}>
-              Rs{' '}
+              {' '}
               {transactions.reduce((acc, curr) => {
                 return curr.type === 'income'
                   ? acc + parseFloat(curr.amount)
                   : acc - parseFloat(curr.amount); // Subtract expense from income
               }, 0)}{' '}
-              NPR
             </Text>
           </View>
         </View>
@@ -300,12 +330,18 @@ const HomeScreen = () => {
 
       <View style={styles.boxWallet}>
         <Text style={styles.text2}> Wallets</Text>
+
         <ScrollView
           horizontal
           style={styles.walletBox}
           contentContainerStyle={{justifyContent: 'space-between'}}>
           {wallets.map(wallet => (
-            <View key={wallet.id} style={styles.WalletsBox}>
+            <TouchableOpacity
+              key={wallet.id}
+              style={styles.WalletsBox}
+              onPress={() =>
+                navigation.navigate('DeleteWallet', {wallet: wallet})
+              }>
               {wallet.type === 'Cash' ? (
                 <FontAwesomeIcon
                   name="money-bill"
@@ -323,9 +359,11 @@ const HomeScreen = () => {
               )}
               <Text style={[styles.text3]}>{wallet.name}</Text>
               <Text style={[styles.text1, {fontSize: 18}]}>
+                {wallet.currency}
+                {'  '}
                 {wallet.amount}
               </Text>
-            </View>
+            </TouchableOpacity>
           ))}
         </ScrollView>
       </View>
@@ -341,15 +379,13 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   dashboard: {
-    width: 1000,
+    width: '100%', // Ensure full width
     padding: 5,
-    // borderWidth: 1,
-    // borderColor: 'white',
     backgroundColor: '#333340',
-    // marginVertical: 10,
-    paddingLeft: 10,
-    position: 'relative',
-    right: 10,
+    marginBottom: 10, // Add spacing at the bottom
+  },
+  dashboardInner: {
+    padding: 10, // Inner padding
   },
   title: {
     color: 'white',
@@ -370,19 +406,18 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: 'white',
   },
+  chartContainer: {
+    marginTop: 20,
+  },
   box: {
     width: '100%',
     padding: 5,
-    // borderWidth: 1,
-    // borderColor: 'white',
     backgroundColor: '#333340',
-    marginVertical: 10,
+    marginBottom: 10, // Ensure consistent spacing
   },
   boxWallet: {
     width: '100%',
     padding: 5,
-    // borderWidth: 1,
-    // borderColor: 'white',
     backgroundColor: '#333340',
   },
   walletBox: {
@@ -390,8 +425,6 @@ const styles = StyleSheet.create({
     paddingBottom: 20,
     paddingTop: 10,
     paddingHorizontal: 10,
-    // borderWidth: 1,
-    // borderColor: 'white',
     backgroundColor: '#333340',
   },
   inner: {
