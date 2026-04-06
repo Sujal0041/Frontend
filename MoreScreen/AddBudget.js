@@ -50,24 +50,40 @@ const AddBudget = ({modalVisible, setModalVisible, fetchBudgets}) => {
   }, []);
 
   const handleAddBudget = async () => {
+    if (!amount || !BName.trim() || !category || !wallet) {
+      alert('Please fill all fields');
+      return;
+    }
+
     try {
-      await addBudget(
-        {
-          amount: parseFloat(amount),
-          name: BName,
-          category,
-          wallet: wallet.id,
-          start_date: startDate.toISOString().split('T')[0],
-          end_date: endDate.toISOString().split('T')[0],
-        },
-        userToken,
-      );
+      const budgetData = {
+        amount: parseFloat(amount),
+        name: BName.trim(),
+        category: category,
+        wallet: wallet.id,
+        start_date: startDate.toISOString().split('T')[0],
+        end_date: endDate.toISOString().split('T')[0],
+      };
+
+      await addBudget(budgetData, userToken);
 
       setModalVisible(false);
-      fetchBudgets();
+      resetForm();
+      if (fetchBudgets) fetchBudgets();
+      alert('Budget added successfully');
     } catch (error) {
-      console.error(error);
+      console.error('Failed to add budget:', error);
+      alert('Failed to add budget. Please check the console for details.');
     }
+  };
+
+  const resetForm = () => {
+    setAmount('');
+    setBName('');
+    setCategory('');
+    setWallet('');
+    setStartDate(new Date());
+    setEndDate(new Date());
   };
 
   return (

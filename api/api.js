@@ -152,7 +152,9 @@ export const addBudget = async (budgetData, userToken) => {
     });
     return response.data;
   } catch (error) {
-    console.log(error);
+    if (error.response) {
+      console.error('Budget error response data:', JSON.stringify(error.response.data));
+    }
     console.error('Error fetching budget list or creating a budget:', error);
     throw error;
   }
@@ -212,6 +214,7 @@ export const getGoalList = async userToken => {
 // Function to fetch all categories
 export const getAllCategories = async userToken => {
   try {
+    console.log('Fetching categories with token:', userToken ? userToken.substring(0, 20) + '...' : 'NULL/UNDEFINED');
     const response = await axios.get(`${BASE_URL}api/category/`, {
       headers: {
         Authorization: `Bearer ${userToken}`,
@@ -220,6 +223,8 @@ export const getAllCategories = async userToken => {
     return response.data;
   } catch (error) {
     console.error('Error fetching categories:', error);
+    console.error('Category error response:', error?.response?.data);
+    console.error('Category error status:', error?.response?.status);
     throw error;
   }
 };
