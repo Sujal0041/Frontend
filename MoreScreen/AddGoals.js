@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState} from 'react';
 import {
   View,
   Text,
@@ -6,19 +6,33 @@ import {
   TextInput,
   Modal,
   TouchableOpacity,
+  StatusBar,
+  ScrollView,
+  Alert,
 } from 'react-native';
 import Wallets from '../screens/Wallets';
-import {Dropdown} from 'react-native-element-dropdown';
-import {addGoal, getAllCategories} from '../api/api';
+import {addGoal} from '../api/api';
 import {useAuth} from '../api/authContext';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import FontAwesome6 from 'react-native-vector-icons/FontAwesome6';
+
+const COLORS = {
+  bg: '#F4F7FB',
+  card: '#FFFFFF',
+  text: '#0F172A',
+  subText: '#64748B',
+  border: '#E2E8F0',
+  primary: '#2563EB',
+  primarySoft: '#DBEAFE',
+  inputBg: '#F8FAFC',
+  danger: '#EF4444',
+};
 
 const AddGoal = ({modalVisible, setModalVisible, fetchGoals}) => {
   const [amount, setAmount] = useState('');
-  const [BName, setBName] = useState('');
+  const [goalName, setGoalName] = useState('');
   const [showWallets, setShowWallets] = useState(false);
-  const [isFormValid, setIsFormValid] = useState(true);
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
@@ -26,315 +40,352 @@ const AddGoal = ({modalVisible, setModalVisible, fetchGoals}) => {
   const {userToken} = useAuth();
 
   const handleEndDateChange = (event, selectedDate) => {
-    setEndDate(selectedDate);
     setShowEndDatePicker(false);
+    if (selectedDate) {
+      setEndDate(selectedDate);
+    }
   };
 
   const handleStartDateChange = (event, selectedDate) => {
-    setStartDate(selectedDate);
     setShowStartDatePicker(false);
+    if (selectedDate) {
+      setStartDate(selectedDate);
+    }
+  };
+
+  const resetForm = () => {
+    setAmount('');
+    setGoalName('');
+    setStartDate(new Date());
+    setEndDate(new Date());
+  };
+
+  const handleClose = () => {
+    resetForm();
+    setModalVisible(false);
   };
 
   const handleAddGoal = async () => {
+    if (!amount || !goalName.trim()) {
+      Alert.alert('Missing Details', 'Please enter amount and goal name.');
+      return;
+    }
+
+    if (endDate < startDate) {
+      Alert.alert(
+        'Invalid Dates',
+        'End date cannot be earlier than start date.',
+      );
+      return;
+    }
+
     try {
       await addGoal(
         {
           amount: parseFloat(amount),
-          name: BName,
+          name: goalName.trim(),
           start_date: startDate.toISOString().split('T')[0],
           end_date: endDate.toISOString().split('T')[0],
           status: 'ongoing',
         },
         userToken,
       );
-      setAmount('');
-      setBName('');
-      setStartDate(new Date());
-      setEndDate(new Date());
+
+      resetForm();
       setModalVisible(false);
       fetchGoals();
     } catch (error) {
       console.error('Error adding goal:', error);
+      Alert.alert('Error', 'Failed to add goal');
     }
   };
 
   return (
     <Modal visible={modalVisible} animationType="slide">
-      {/* <View style={styles.container}> */}
-      {showWallets ? (
-        <Wallets
-          handleWalletSelection={handleWalletSelection}
-          setShowWallets={setShowWallets}
-        />
-      ) : (
-        <View style={styles.modalContainer}>
-          <View style>
-            <TouchableOpacity
-              onPress={() => {
-                setModalVisible(false);
-              }}
-              style={styles.cancelButton}>
-              <Text style={styles.cancelButtonText}>Cancel</Text>
-            </TouchableOpacity>
-            <Text style={styles.title}>Add Goal</Text>
-          </View>
+      <View style={styles.screen}>
+        <StatusBar barStyle="dark-content" backgroundColor={COLORS.bg} />
 
-          <View>
-            <View style={styles.inputContainer}>
-              <TextInput
-                style={styles.inputAmount}
-                placeholder="0"
-                placeholderTextColor={'white'}
-                keyboardType="numeric"
-                value={amount}
-                onChangeText={setAmount}
-              />
-            </View>
-            <View>
-              <TextInput
-                style={[styles.input, {color: 'white'}]}
-                placeholder="Goal Name"
-                placeholderTextColor="#8c8c8e"
-                value={BName}
-                onChangeText={setBName}
-              />
+        {showWallets ? (
+          <Wallets setShowWallets={setShowWallets} />
+        ) : (
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.scrollContent}>
+            <View style={styles.header}>
+              <TouchableOpacity
+                style={styles.headerButton}
+                onPress={handleClose}>
+                <AntDesign name="close" size={20} color={COLORS.text} />
+              </TouchableOpacity>
+
+              <Text style={styles.headerTitle}>Add Goal</Text>
+
+              <View style={styles.headerSpacer} />
             </View>
 
-            {/* <TouchableOpacity
-              style={[
-                styles.walletButton,
-                {
-                  backgroundColor: '#333136',
-                  borderRadius: 10,
-                  marginTop: 10,
-                },
-              ]}
-              onPress={() => setShowWallets(true)}>
-              <View
-                style={{
-                  flexDirection: 'row',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}>
-                <Text
-                  style={[
-                    styles.accountText,
-                    {color: 'white', fontWeight: 'bold', textAlign: 'left'},
-                  ]}>
-                  Account
-                </Text>
-                <Text
-                  style={[
-                    styles.walletButtonText,
-                    {
-                      color: '#8c8c8e',
-                      fontWeight: 'bold',
-                      textAlign: 'right',
-                    },
-                  ]}>
-                  {wallet.name || 'Select Wallet'}
+            <View style={styles.heroCard}>
+              <View style={styles.heroIconWrap}>
+                <FontAwesome6
+                  name="bullseye"
+                  size={18}
+                  color={COLORS.primary}
+                />
+              </View>
+
+              <View style={styles.heroTextWrap}>
+                <Text style={styles.heroTitle}>Create a new goal</Text>
+                <Text style={styles.heroSubtitle}>
+                  Set a target amount and timeline to track your progress.
                 </Text>
               </View>
-            </TouchableOpacity> */}
-            <View style={styles.dateContainer}>
-              <Text style={styles.dateText}>Start Date</Text>
+            </View>
+
+            <View style={styles.card}>
+              <Text style={styles.sectionTitle}>Goal Details</Text>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Target Amount</Text>
+                <TextInput
+                  style={styles.amountInput}
+                  placeholder="Enter amount"
+                  placeholderTextColor="#94A3B8"
+                  keyboardType="numeric"
+                  value={amount}
+                  onChangeText={setAmount}
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Goal Name</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="Enter goal name"
+                  placeholderTextColor="#94A3B8"
+                  value={goalName}
+                  onChangeText={setGoalName}
+                />
+              </View>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Start Date</Text>
+                <TouchableOpacity
+                  style={styles.pickerButton}
+                  onPress={() => setShowStartDatePicker(true)}>
+                  <Text style={styles.pickerButtonText}>
+                    {startDate.toLocaleDateString('en-US')}
+                  </Text>
+                  <AntDesign name="calendar" size={18} color={COLORS.primary} />
+                </TouchableOpacity>
+              </View>
 
               {showStartDatePicker && (
                 <DateTimePicker
-                  testID="dateTimePicker"
                   value={startDate}
                   mode="date"
                   display="default"
                   onChange={handleStartDateChange}
-                  onCancel={() => setShowStartDatePicker(false)}
                 />
               )}
-              <Text style={styles.datePickerText}>
-                {startDate.toLocaleDateString('en-US')}
-                {'  '}
-              </Text>
-              <TouchableOpacity
-                style={styles.backButton}
-                onPress={() => setShowStartDatePicker(true)}>
-                <AntDesign name="calendar" size={24} color="white" />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.dateContainer}>
-              <Text style={styles.dateText}>End Date</Text>
+
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>End Date</Text>
+                <TouchableOpacity
+                  style={styles.pickerButton}
+                  onPress={() => setShowEndDatePicker(true)}>
+                  <Text style={styles.pickerButtonText}>
+                    {endDate.toLocaleDateString('en-US')}
+                  </Text>
+                  <AntDesign name="calendar" size={18} color={COLORS.primary} />
+                </TouchableOpacity>
+              </View>
 
               {showEndDatePicker && (
                 <DateTimePicker
-                  testID="dateTimePicker"
                   value={endDate}
                   mode="date"
                   display="default"
                   onChange={handleEndDateChange}
-                  onCancel={() => setShowEndDatePicker(false)}
                 />
               )}
-              <Text style={styles.datePickerText}>
-                {endDate.toLocaleDateString('en-US')}
-                {'  '}
-              </Text>
+
               <TouchableOpacity
-                style={styles.backButton}
-                onPress={() => setShowEndDatePicker(true)}>
-                <AntDesign name="calendar" size={24} color="white" />
+                style={styles.primaryButton}
+                onPress={handleAddGoal}>
+                <Text style={styles.primaryButtonText}>Add Goal</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.secondaryButton}
+                onPress={handleClose}>
+                <Text style={styles.secondaryButtonText}>Cancel</Text>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              style={[styles.addButton, {backgroundColor: '#8c8c8e'}]}
-              onPress={handleAddGoal}>
-              <Text
-                style={[
-                  styles.addButtonText,
-                  {color: 'white', fontFamily: 'roboto'}, // Text color and font family
-                ]}>
-                Add
-              </Text>
-            </TouchableOpacity>
-
-            {!isFormValid && (
-              <View style={styles.warningModal}>
-                <Text style={styles.warningText}>
-                  Please fill all the details.
-                </Text>
-                <TouchableOpacity
-                  onPress={() => setIsFormValid(true)}
-                  style={styles.dismissButton}>
-                  <Text style={styles.dismissButtonText}>Dismiss</Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </View>
-        </View>
-      )}
-      {/* </View> */}
+          </ScrollView>
+        )}
+      </View>
     </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  container: {
+  screen: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#1e1e1e',
+    backgroundColor: COLORS.bg,
   },
-  text: {
-    fontSize: 20,
-    fontWeight: 'bold',
+  scrollContent: {
+    paddingHorizontal: 16,
+    paddingTop: 18,
+    paddingBottom: 40,
   },
-  walletButton: {
-    height: 40,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 10,
-    paddingHorizontal: 10,
-    justifyContent: 'center',
-  },
-  cancelButton: {
-    position: 'absolute',
-    top: 10,
-    left: 10,
-    padding: 10,
-    width: 80,
-    height: 45,
-  },
-  cancelButtonText: {
-    color: '#277ad0',
-    fontFamily: 'Roboto',
-    fontSize: 18,
-  },
-  inputContainer: {
+  header: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    height: 60,
-    width: '100%',
-    marginBottom: 20,
-    borderBottomWidth: 1,
-    borderColor: 'gray',
-    paddingHorizontal: 10,
-    marginTop: 15,
+    marginBottom: 18,
   },
-  inputAmount: {
-    flex: 1,
-    fontSize: 20,
-    color: 'white', // Default text color
-  },
-  dateContainer: {
-    flexDirection: 'row',
+  headerButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: COLORS.card,
     alignItems: 'center',
-    marginBottom: 10,
+    justifyContent: 'center',
+    shadowColor: '#0F172A',
+    shadowOffset: {width: 0, height: 4},
+    shadowOpacity: 0.04,
+    shadowRadius: 10,
+    elevation: 2,
   },
-  dateText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginRight: 10,
-    color: 'white',
+  headerSpacer: {
+    width: 42,
+    height: 42,
+  },
+  headerTitle: {
+    fontSize: 24,
+    fontWeight: '800',
+    color: COLORS.text,
+  },
+  heroCard: {
+    backgroundColor: COLORS.card,
+    borderRadius: 24,
+    padding: 18,
+    marginBottom: 18,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    shadowColor: '#0F172A',
+    shadowOffset: {width: 0, height: 6},
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  heroIconWrap: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: COLORS.primarySoft,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginRight: 14,
+  },
+  heroTextWrap: {
     flex: 1,
   },
-  dateInput: {
-    borderWidth: 0,
-    borderBottomWidth: 1,
-    borderBottomColor: 'gray',
-    alignItems: 'flex-start',
+  heroTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: COLORS.text,
   },
-  datePickerText: {
-    fontSize: 16,
-    color: 'white', // Color of the chosen date
+  heroSubtitle: {
+    marginTop: 6,
+    fontSize: 14,
+    lineHeight: 20,
+    color: COLORS.subText,
   },
-  title: {
-    fontSize: 18,
-    textAlign: 'center',
-    color: 'white',
-    fontFamily: 'roboto',
-    marginTop: 20,
+  card: {
+    backgroundColor: COLORS.card,
+    borderRadius: 24,
+    padding: 20,
+    shadowColor: '#0F172A',
+    shadowOffset: {width: 0, height: 6},
+    shadowOpacity: 0.05,
+    shadowRadius: 12,
+    elevation: 3,
+  },
+  sectionTitle: {
+    fontSize: 20,
+    fontWeight: '800',
+    color: COLORS.text,
+    marginBottom: 18,
+  },
+  inputGroup: {
+    marginBottom: 16,
+  },
+  label: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: COLORS.text,
+    marginBottom: 8,
   },
   input: {
-    height: 40,
-    borderColor: 'gray',
+    height: 52,
     borderWidth: 1,
-    borderRadius: 5,
-    marginBottom: 10,
-    paddingHorizontal: 10,
+    borderColor: COLORS.border,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    backgroundColor: COLORS.inputBg,
+    color: COLORS.text,
+    fontSize: 15,
   },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: 'black',
-    paddingHorizontal: 20,
+  amountInput: {
+    height: 60,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 16,
+    paddingHorizontal: 16,
+    backgroundColor: COLORS.inputBg,
+    color: COLORS.text,
+    fontSize: 22,
+    fontWeight: '700',
   },
-  dropdownContainer: {
+  pickerButton: {
+    height: 52,
+    borderWidth: 1,
+    borderColor: COLORS.border,
+    borderRadius: 16,
+    backgroundColor: COLORS.inputBg,
+    paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: 10,
+    justifyContent: 'space-between',
   },
-  categoryText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    marginRight: 10,
-    color: 'white',
+  pickerButtonText: {
+    color: COLORS.text,
+    fontSize: 15,
+    fontWeight: '500',
   },
-  dropdown: {
-    flex: 1,
-    borderColor: 'gray',
-    borderWidth: 1,
-    borderRadius: 5,
-    paddingHorizontal: 8,
-    height: 50,
-  },
-  addButton: {
-    backgroundColor: 'green',
-    padding: 10,
-    borderRadius: 5,
-    marginTop: 10,
+  primaryButton: {
+    backgroundColor: COLORS.primary,
+    paddingVertical: 14,
+    borderRadius: 16,
     alignItems: 'center',
+    marginTop: 8,
   },
-  addButtonText: {
-    color: 'white',
-    fontWeight: 'bold',
+  primaryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  secondaryButton: {
+    backgroundColor: '#E2E8F0',
+    paddingVertical: 14,
+    borderRadius: 16,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  secondaryButtonText: {
+    color: COLORS.text,
+    fontSize: 16,
+    fontWeight: '700',
   },
 });
 

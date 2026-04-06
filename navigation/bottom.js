@@ -1,14 +1,7 @@
 import React, {useState} from 'react';
-import {
-  Text,
-  Platform,
-  View,
-  TouchableOpacity,
-  ImageComponent,
-} from 'react-native';
+import {Text, Platform, View, TouchableOpacity, StyleSheet} from 'react-native';
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import AntDesign from 'react-native-vector-icons/AntDesign';
-import {useNavigation} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 
 import {
@@ -21,7 +14,7 @@ import {
   DeleteTransaction,
   DeleteWallet,
   EditWallet,
-} from '../screens/Index';
+} from '../screens/index';
 import Wallets from '../screens/Wallets';
 import AddWallet from '../screens/AddWallet';
 
@@ -38,175 +31,138 @@ import GoalDetail from '../MoreScreen/GoalDetail';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
+const ACTIVE_COLOR = '#2563EB';
+const INACTIVE_COLOR = '#94A3B8';
+const TAB_BG = '#FFFFFF';
+const FAB_BG = '#2563EB';
+const LABEL_COLOR = '#0F172A';
+
 const screenOptions = {
   tabBarShowLabel: false,
   headerShown: false,
   tabBarHideOnKeyboard: true,
   tabBarStyle: {
     position: 'absolute',
-    bottom: 0,
-    left: 0,
-    right: 0,
-    elevation: 0,
-    height: 60,
-    backgroundColor: '#3e3e42',
+    left: 16,
+    right: 16,
+    bottom: 14,
+    height: 72,
+    borderRadius: 24,
+    backgroundColor: TAB_BG,
+    borderTopWidth: 0,
+    elevation: 12,
+    shadowColor: '#000',
+    shadowOffset: {width: 0, height: 6},
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    paddingHorizontal: 10,
+    paddingTop: 8,
   },
 };
 
-const GoalsNav = () => {
-  const navigation = useNavigation();
+const TabItem = ({focused, icon, label}) => {
+  const color = focused ? ACTIVE_COLOR : INACTIVE_COLOR;
+
   return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name="Goals" component={Goals} />
-      <Stack.Screen name="AddGoals" component={AddGoals} />
-      <Stack.Screen name="GoalDetail" component={GoalDetail} />
-    </Stack.Navigator>
+    <View style={styles.tabItem}>
+      <View style={[styles.iconWrap, focused && styles.iconWrapActive]}>
+        <AntDesign name={icon} size={22} color={color} />
+      </View>
+      <Text
+        style={[styles.tabLabel, {color}, focused && styles.tabLabelActive]}>
+        {label}
+      </Text>
+    </View>
   );
 };
 
-const DelTransaction = () => {
-  const navigation = useNavigation();
-  return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name="Transactions" component={Transactions} />
-      <Stack.Screen name="DeleteTransaction" component={DeleteTransaction} />
-    </Stack.Navigator>
-  );
-};
+const GoalsNav = () => (
+  <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Screen name="Goals" component={Goals} />
+    <Stack.Screen name="AddGoals" component={AddGoals} />
+    <Stack.Screen name="GoalDetail" component={GoalDetail} />
+  </Stack.Navigator>
+);
 
-const DelWallet = () => {
-  const navigation = useNavigation();
-  return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name="HomeScreen" component={HomeScreen} />
-      <Stack.Screen name="DeleteWallet" component={DeleteWallet} />
-      <Stack.Screen name="EditWallet" component={EditWallet} />
-    </Stack.Navigator>
-  );
-};
+const DelTransaction = () => (
+  <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Screen name="Transactions" component={Transactions} />
+    <Stack.Screen name="DeleteTransaction" component={DeleteTransaction} />
+  </Stack.Navigator>
+);
 
-const MoreNav = () => {
-  const navigation = useNavigation();
-  return (
-    <Stack.Navigator screenOptions={{headerShown: false}}>
-      <Stack.Screen name="More" component={More} />
-      <Stack.Screen name="AccountSettings" component={AccountSettings} />
+const DelWallet = () => (
+  <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Screen name="HomeScreen" component={HomeScreen} />
+    <Stack.Screen name="DeleteWallet" component={DeleteWallet} />
+    <Stack.Screen name="EditWallet" component={EditWallet} />
+  </Stack.Navigator>
+);
 
-      <Stack.Screen name="Budget" component={Budget} />
-      <Stack.Screen name="BudgetDetail" component={BudgetDetail} />
-      <Stack.Screen name="AddWallet" component={AddWallet} />
-      <Stack.Screen name="ViewCategory" component={ViewCategory} />
-      <Stack.Screen name="AddCategory" component={AddCategory} />
-      <Stack.Screen name="CategoryIcon" component={CategoryIcon} />
-      <Stack.Screen name="ViewReminder" component={ViewReminder} />
-      <Stack.Screen name="AddReminder" component={AddReminder} />
-    </Stack.Navigator>
-  );
-};
+const MoreNav = () => (
+  <Stack.Navigator screenOptions={{headerShown: false}}>
+    <Stack.Screen name="More" component={More} />
+    <Stack.Screen name="AccountSettings" component={AccountSettings} />
+    <Stack.Screen name="Budget" component={Budget} />
+    <Stack.Screen name="BudgetDetail" component={BudgetDetail} />
+    <Stack.Screen name="AddWallet" component={AddWallet} />
+    <Stack.Screen name="ViewCategory" component={ViewCategory} />
+    <Stack.Screen name="AddCategory" component={AddCategory} />
+    <Stack.Screen name="CategoryIcon" component={CategoryIcon} />
+    <Stack.Screen name="ViewReminder" component={ViewReminder} />
+    <Stack.Screen name="AddReminder" component={AddReminder} />
+  </Stack.Navigator>
+);
 
-const ManageTransactionNav = () => {
-  const navigation = useNavigation();
+const ManageTransactionNav = ({modalVisible, setModalVisible}) => {
   return (
-    <Stack.Navigator>
-      <Stack.Screen
-        name="ManageTransaction"
-        component={ManageTransaction}
-        options={{
-          headerLeft: null,
-        }}
-      />
-      <Stack.Screen name="AddWalletButton" component={AddWallet} />
-      <Stack.Screen
-        name="Wallets"
-        component={Wallets}
-        options={{
-          title: 'Wallets',
-          headerRight: () => (
-            <TouchableOpacity
-              onPress={() => navigation.navigate('AddWalletButton')}
-              style={{marginRight: 10}}>
-              <AntDesign name="plus" size={24} color="black" />
-            </TouchableOpacity>
-          ),
-        }}
-      />
-    </Stack.Navigator>
+    <ManageTransaction
+      modalVisible={modalVisible}
+      setModalVisible={setModalVisible}
+    />
   );
 };
 
 const MainTabNavigator = () => {
-  const navigation = useNavigation();
   const [modalVisible, setModalVisible] = useState(false);
 
   return (
-    <View style={{flex: 1}}>
+    <View style={{flex: 1, backgroundColor: '#F8FAFC'}}>
       <Tab.Navigator initialRouteName="Home" screenOptions={screenOptions}>
         <Tab.Screen
           name="Home"
           component={DelWallet}
-          options={({route}) => ({
+          options={{
             tabBarIcon: ({focused}) => (
-              <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                <AntDesign
-                  name="home"
-                  size={24}
-                  color={focused ? '#277ad0' : 'white'}
-                />
-                <Text
-                  style={{fontSize: 12, color: focused ? '#277ad0' : 'white'}}>
-                  Home
-                </Text>
-              </View>
+              <TabItem focused={focused} icon="home" label="Home" />
             ),
-          })}
+          }}
         />
 
         <Tab.Screen
           name="TransactionTab"
           component={DelTransaction}
           options={{
-            tabBarIcon: ({focused}) => {
-              return (
-                <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                  <AntDesign
-                    name="swap"
-                    size={24}
-                    color={focused ? '#277ad0' : 'white'}
-                  />
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      color: focused ? '#277ad0' : 'white',
-                    }}>
-                    Transactions
-                  </Text>
-                </View>
-              );
-            },
+            tabBarIcon: ({focused}) => (
+              <TabItem focused={focused} icon="swap" label="Transactions" />
+            ),
           }}
         />
 
         <Tab.Screen
           name="ManageTransaction"
           options={{
-            tabBarIcon: ({focused}) => (
+            tabBarIcon: () => (
               <TouchableOpacity
+                activeOpacity={0.85}
                 onPress={() => setModalVisible(true)}
-                style={{
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: '#16247d',
-                  width: Platform.OS == 'ios' ? 50 : 60,
-                  height: Platform.OS == 'ios' ? 50 : 60,
-                  top: Platform.OS == 'ios' ? -10 : -20,
-                  borderRadius: Platform.OS == 'ios' ? 25 : 30,
-                }}>
-                <AntDesign name="plus" size={24} color="#fff" />
+                style={styles.fabButton}>
+                <AntDesign name="plus" size={26} color="#FFFFFF" />
               </TouchableOpacity>
             ),
           }}>
           {() => (
-            <ManageTransaction
+            <ManageTransactionNav
               modalVisible={modalVisible}
               setModalVisible={setModalVisible}
             />
@@ -217,51 +173,23 @@ const MainTabNavigator = () => {
           name="Goals"
           component={GoalsNav}
           options={{
-            tabBarIcon: ({focused}) => {
-              return (
-                <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                  <AntDesign
-                    name="checksquareo"
-                    size={24}
-                    color={focused ? '#277ad0' : 'white'}
-                  />
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      color: focused ? '#277ad0' : 'white',
-                    }}>
-                    Goals
-                  </Text>
-                </View>
-              );
-            },
+            tabBarIcon: ({focused}) => (
+              <TabItem focused={focused} icon="checksquareo" label="Goals" />
+            ),
           }}
         />
+
         <Tab.Screen
           name="More"
           component={MoreNav}
           options={{
-            tabBarIcon: ({focused}) => {
-              return (
-                <View style={{alignItems: 'center', justifyContent: 'center'}}>
-                  <AntDesign
-                    name="ellipsis1"
-                    size={24}
-                    color={focused ? '#277ad0' : 'white'}
-                  />
-                  <Text
-                    style={{
-                      fontSize: 12,
-                      color: focused ? '#277ad0' : 'white',
-                    }}>
-                    More
-                  </Text>
-                </View>
-              );
-            },
+            tabBarIcon: ({focused}) => (
+              <TabItem focused={focused} icon="ellipsis1" label="More" />
+            ),
           }}
         />
       </Tab.Navigator>
+
       <ManageTransaction
         modalVisible={modalVisible}
         setModalVisible={setModalVisible}
@@ -269,5 +197,46 @@ const MainTabNavigator = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  tabItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  iconWrap: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconWrapActive: {
+    backgroundColor: '#EFF6FF',
+  },
+  tabLabel: {
+    fontSize: 11,
+    marginTop: 3,
+    fontWeight: '500',
+  },
+  tabLabelActive: {
+    color: LABEL_COLOR,
+    fontWeight: '700',
+  },
+  fabButton: {
+    width: Platform.OS === 'ios' ? 58 : 62,
+    height: Platform.OS === 'ios' ? 58 : 62,
+    borderRadius: Platform.OS === 'ios' ? 29 : 31,
+    backgroundColor: FAB_BG,
+    alignItems: 'center',
+    justifyContent: 'center',
+    top: Platform.OS === 'ios' ? -14 : -20,
+    shadowColor: '#2563EB',
+    shadowOffset: {width: 0, height: 8},
+    shadowOpacity: 0.28,
+    shadowRadius: 10,
+    elevation: 10,
+  },
+});
 
 export default MainTabNavigator;
