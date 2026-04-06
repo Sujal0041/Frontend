@@ -46,7 +46,7 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
   const [amount, setAmount] = useState('');
   const [notes, setNotes] = useState('');
   const [transactionType, setTransactionType] = useState('Income');
-  const [category, setCategory] = useState('');
+  const [selectedCategoryKey, setSelectedCategoryKey] = useState('');
   const [date, setDate] = useState(new Date());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showTimePicker, setShowTimePicker] = useState(false);
@@ -115,12 +115,21 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
   }, [modalVisible, userToken]);
 
   useEffect(() => {
-    let combined = [...allCategories];
+    const mappedCategories = allCategories.map(item => ({
+      category_name: item.category_name,
+      id: item.id,
+      type: allCustom.some(custom => custom.id === item.id) ? 'custom' : 'category',
+      value: `${allCustom.some(custom => custom.id === item.id) ? 'custom' : 'category'}-${item.id}`,
+    }));
+
+    let combined = mappedCategories;
 
     if (transactionType === 'Expense') {
       const mappedGoals = allGoals.map(goal => ({
         category_name: goal.name,
         id: goal.id,
+        type: 'goal',
+        value: `goal-${goal.id}`,
       }));
       combined = [...combined, ...mappedGoals];
     }
@@ -128,24 +137,20 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
     const categoryMap = new Map();
 
     combined.forEach(cat => {
-      const compositeKey = `${cat.id}-${cat.category_name}`;
-      if (!categoryMap.has(compositeKey)) {
-        categoryMap.set(compositeKey, cat);
+      if (!categoryMap.has(cat.value)) {
+        categoryMap.set(cat.value, cat);
       }
     });
 
     setCombinedCategories(Array.from(categoryMap.values()));
-  }, [transactionType, allCategories, allGoals]);
+  }, [transactionType, allCategories, allCustom, allGoals]);
 
   const dropdownData = useMemo(() => {
-    const source =
-      transactionType === 'Income' ? allCategories : combinedCategories;
-
-    return source.map(item => ({
+    return combinedCategories.map(item => ({
       label: item.category_name,
-      value: item.id,
+      value: item.value,
     }));
-  }, [transactionType, allCategories, combinedCategories]);
+  }, [combinedCategories]);
 
   const handleWalletSelection = selectedWallet => {
     setWallet(selectedWallet);
@@ -156,14 +161,14 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
     setAmount('');
     setNotes('');
     setWallet('');
-    setCategory('');
+    setSelectedCategoryKey('');
     setDate(new Date());
     setTransactionType('Income');
     setIsFormValid(true);
   };
 
   const handleAddTransaction = async () => {
-    if (!amount || !notes || !category || !wallet) {
+    if (!amount || !notes || !selectedCategoryKey || !wallet) {
       setIsFormValid(false);
       return;
     }
@@ -175,32 +180,15 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
     };
 
     const selectedCategory = combinedCategories.find(
-      item => item.id === category,
+      item => item.value === selectedCategoryKey,
     );
 
-    if (selectedCategory) {
-      if (
-        allCategories.some(cat => cat.id === category) &&
-        !allCustom.some(cat => cat.id === category) &&
-        !allGoals.some(cat => cat.id === category)
-      ) {
-        transactionCategory.category = category;
-      } else if (
-        allCustom.some(cat => cat.id === category) &&
-        !allGoals.some(cat => cat.id === category)
-      ) {
-        transactionCategory.custom = category;
-      } else if (
-        allGoals.some(cat => cat.id === category) &&
-        !allCategories.some(cat => cat.id === category) &&
-        !allCustom.some(cat => cat.id === category)
-      ) {
-        transactionCategory.goal = category;
-      }
-    } else {
-      if (allCategories.some(cat => cat.id === category)) {
-        transactionCategory.category = category;
-      }
+    if (selectedCategory?.type === 'category') {
+      transactionCategory.category = selectedCategory.id;
+    } else if (selectedCategory?.type === 'custom') {
+      transactionCategory.custom = selectedCategory.id;
+    } else if (selectedCategory?.type === 'goal') {
+      transactionCategory.goal = selectedCategory.id;
     }
 
     const transactionData = {
@@ -344,11 +332,11 @@ const ManageTransaction = ({modalVisible, setModalVisible}) => {
                 labelField="label"
                 valueField="value"
                 placeholder={!isCategoryFocus ? 'Select category' : '...'}
-                value={category}
+                value={selectedCategoryKey}
                 onFocus={() => setIsCategoryFocus(true)}
                 onBlur={() => setIsCategoryFocus(false)}
                 onChange={item => {
-                  setCategory(item.value);
+                  setSelectedCategoryKey(item.value);
                   setIsCategoryFocus(false);
                 }}
               />

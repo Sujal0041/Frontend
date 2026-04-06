@@ -48,10 +48,30 @@ const Goals = () => {
       setGoals(goalsData || []);
 
       const progressPromises = (goalsData || []).map(goal =>
-        getGoalProgress(userToken, goal.id).then(progress => ({
-          id: goal.id,
-          progress: progress?.progress || 0,
-        })),
+        getGoalProgress(
+          userToken,
+          goal.id,
+          goal.start_date,
+          goal.end_date,
+        ).then(progressData => {
+          let rawValue = 0;
+          if (Array.isArray(progressData)) {
+            rawValue = progressData[0] || 0;
+          } else if (progressData && typeof progressData === 'object') {
+            rawValue = progressData.progress ?? progressData.percentage ?? 0;
+          } else {
+            rawValue = progressData || 0;
+          }
+
+          // Ensure progress is a decimal (0-1)
+          const finalProgress =
+            Number(rawValue) > 1 ? Number(rawValue) / 100 : Number(rawValue);
+
+          return {
+            id: goal.id,
+            progress: Math.max(0, Math.min(finalProgress, 1)),
+          };
+        }),
       );
 
       const progressResults = await Promise.all(progressPromises);

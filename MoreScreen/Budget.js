@@ -48,16 +48,41 @@ const Budget = () => {
       const data = await getBudgetList(userToken);
 
       const budgetWithProgressPromises = data.map(async budget => {
+        const categoryId = budget.custom || budget.category;
+
+        if (!categoryId) {
+          return {...budget, progress: 0};
+        }
+
+        // Pass dates to ensure progress is only calculated for the budget's duration
         const progressData = await getTotalDividedByBudgetAmount(
           userToken,
-          budget.wallet,
-          budget.category,
+          budget.wallet?.id || budget.wallet,
+          categoryId?.id || categoryId,
+          budget.start_date,
+          budget.end_date,
         );
 
-        const rawProgress = progressData?.[0] ?? 0;
-        const safeProgress = Math.max(0, Math.min(rawProgress, 1));
+        // Handle both array and object responses from backend
+        // If it's an array, take the first element. If it's an object, check for 'percentage' or 'progress'.
+        let rawValue = 0;
+        if (Array.isArray(progressData)) {
+          rawValue = progressData[0] || 0;
+        } else if (progressData && typeof progressData === 'object') {
+          rawValue = progressData.percentage ?? progressData.progress ?? 0;
+        } else {
+          rawValue = progressData || 0;
+        }
 
-        return {...budget, progress: safeProgress};
+        // Convert percentage (0-100) to decimal (0-1) if needed
+        const safeProgress = Math.max(0, Math.min(Number(rawValue) > 1 ? Number(rawValue) / 100 : Number(rawValue), 1));
+
+        return {
+          ...budget,
+          progress: safeProgress,
+          totalSpent: progressData?.total_spent ?? 0,
+          budgetAmount: progressData?.budget_amount ?? budget.amount,
+        };
       });
 
       const budgetsWithProgress = await Promise.all(budgetWithProgressPromises);

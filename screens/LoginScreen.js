@@ -21,7 +21,7 @@ import {useAuth} from '../api/authContext';
 
 const LoginScreen = () => {
   const [email, setEmail] = useState('a@gmail.com');
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState('12345678');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 

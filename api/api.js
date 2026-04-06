@@ -262,17 +262,19 @@ export const getTotalDividedByBudgetAmount = async (
   userToken,
   walletId,
   categoryId,
+  startDate,
+  endDate,
 ) => {
   try {
     const response = await axios.get(
-      `${BASE_URL}api/budget/${walletId}/category/${categoryId}/total-divided-by-budget-amount/`,
+      `${BASE_URL}api/budget/${walletId}/category/${categoryId}/total-divided-by-budget-amount/?start_date=${startDate}&end_date=${endDate}`,
       {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
       },
     );
-    console.log('response.data', response.data);
+    console.log('Progress data for budget:', response.data);
     return response.data;
   } catch (error) {
     console.error('Error calculating total divided by budget amount:', error);
@@ -280,20 +282,20 @@ export const getTotalDividedByBudgetAmount = async (
   }
 };
 
-export const getGoalProgress = async (userToken, goalId) => {
+export const getGoalProgress = async (userToken, goalId, startDate, endDate) => {
   try {
     const response = await axios.get(
-      `${BASE_URL}api/goal/${goalId}/progress/`,
+      `${BASE_URL}api/goal/${goalId}/progress/?start_date=${startDate}&end_date=${endDate}`,
       {
         headers: {
           Authorization: `Bearer ${userToken}`,
         },
       },
     );
-    console.log('response.data', response.data);
+    console.log(`Progress data for goal ${goalId}:`, response.data);
     return response.data;
   } catch (error) {
-    console.error('Error calculating total divided by budget amount:', error);
+    console.error('Error calculating goal progress:', error);
     throw error;
   }
 };
