@@ -176,9 +176,13 @@ export const addGoal = async (goalData, userToken) => {
 };
 
 // Function to fetch a budget detail by pk
-export const getBudgetDetail = async pk => {
+export const getBudgetDetail = async (pk, userToken) => {
   try {
-    const response = await axios.get(`${BASE_URL}api/budget/${pk}/`);
+    const response = await axios.get(`${BASE_URL}api/budget/${pk}/`, {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error('Error fetching budget detail:', error);
@@ -187,9 +191,13 @@ export const getBudgetDetail = async pk => {
 };
 
 // Function to fetch budget list
-export const getBudgetList = async () => {
+export const getBudgetList = async userToken => {
   try {
-    const response = await axios.get(`${BASE_URL}api/budget-list/`);
+    const response = await axios.get(`${BASE_URL}api/budget-list/`, {
+      headers: {
+        Authorization: `Bearer ${userToken}`,
+      },
+    });
     return response.data;
   } catch (error) {
     console.error('Error fetching budget list:', error);

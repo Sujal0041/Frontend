@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   View,
   Text,
@@ -34,14 +34,18 @@ const Budget = () => {
   const {userToken} = useAuth();
 
   useFocusEffect(
-    React.useCallback(() => {
+    useCallback(() => {
+      if (!userToken) {
+        return;
+      }
+
       fetchBudgets();
-    }, []),
+    }, [userToken]),
   );
 
   const fetchBudgets = async () => {
     try {
-      const data = await getBudgetList();
+      const data = await getBudgetList(userToken);
 
       const budgetWithProgressPromises = data.map(async budget => {
         const progressData = await getTotalDividedByBudgetAmount(

@@ -20,7 +20,7 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import {useAuth} from '../api/authContext';
 
 const LoginScreen = () => {
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState('a@gmail.com');
   const [password, setPassword] = useState('');
   const [isPasswordVisible, setIsPasswordVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
