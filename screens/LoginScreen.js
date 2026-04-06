@@ -48,8 +48,18 @@ const LoginScreen = () => {
 
       const response = await axios.post(`${BASE_URL}api/login/`, userData);
 
+      console.log('Login response data:', JSON.stringify(response.data));
+
       if (response.status === 200) {
-        // const token = response.data.token;
+        // Use response.data.token, or response.data.access if using SimpleJWT
+        const token = response.data.token || response.data.access;
+        
+        if (!token) {
+          console.error('No token found in response. Keys:', Object.keys(response.data));
+          setModalVisible(true);
+          return;
+        }
+
         await storeToken(token);
 
         setEmail('');
@@ -61,6 +71,7 @@ const LoginScreen = () => {
         setModalVisible(true);
       }
     } catch (error) {
+      console.error('Login error:', error?.response?.data || error.message);
       setModalVisible(true);
     }
   };
